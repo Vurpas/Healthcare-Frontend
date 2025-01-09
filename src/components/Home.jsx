@@ -32,6 +32,25 @@ const LoginButton = styled.div`
   }
 `;
 
+const RegisterButton = styled.div`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-top: 3rem;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+`;
+
 const LogoContainer = styled.img`
   height: 20rem;
 `;
@@ -46,6 +65,11 @@ const Home = () => (
           Login
         </Link>
       </LoginButton>
+      <RegisterButton>
+        <Link className="link" to="/register">
+          Register
+        </Link>
+      </RegisterButton>
     </HomeContainer>
   </>
 );
