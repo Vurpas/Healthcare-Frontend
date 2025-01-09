@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import axios from "axios";
-import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 // login page
 const RegisterContainer = styled.div`
   display: flex;
@@ -60,11 +59,17 @@ const StyledInput = styled.input`
 `;
 
 function Register() {
-  const { setAuthState } = useAuth();
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    city: "",
+    street: "",
+    phoneNumber: "",
+    dateOfBirth: "",
   });
   const [error, setError] = useState("");
 
@@ -83,24 +88,11 @@ function Register() {
           withCredentials: true,
           // using withCredentials is crucial for any request that needs to check authorization!
           // so remember to use this if needed
-        }
+        },
+        navigate("/", { replace: true })
       );
 
-      const { username, roles } = response.data;
-
-      setAuthState({
-        isAuthenticated: true,
-        user: username,
-        roles: roles,
-        loading: false,
-      });
-
-      // redirect based on role
-      if (roles.includes("ADMIN")) {
-        navigate("/admin/dashboard", { replace: true });
-      } else {
-        navigate("/user/dashboard", { replace: true });
-      }
+      // This try catch must be updated or removed with relevant code.
     } catch (error) {
       setError("Invalid username or password");
     }
@@ -127,7 +119,63 @@ function Register() {
           onChange={handleInputChange}
           required
         />
-        <RegisterButton type="submit">Login</RegisterButton>
+        <label>First name: </label>
+        <StyledInput
+          name="firstName"
+          type="text"
+          value={credentials.firstName}
+          onChange={handleInputChange}
+          required
+        />
+        <label>Last name: </label>
+        <StyledInput
+          name="lastName"
+          type="text"
+          value={credentials.lastName}
+          onChange={handleInputChange}
+          required
+        />
+        <label>Email: </label>
+        <StyledInput
+          name="email"
+          type="email"
+          value={credentials.email}
+          onChange={handleInputChange}
+          required
+        />
+        <label>City: </label>
+        <StyledInput
+          name="city"
+          type="text"
+          value={credentials.city}
+          onChange={handleInputChange}
+          required
+        />
+        <label>Street: </label>
+        <StyledInput
+          name="street"
+          type="text"
+          value={credentials.street}
+          onChange={handleInputChange}
+          required
+        />
+        <label>Phone Number: </label>
+        <StyledInput
+          name="phoneNumber"
+          type="text"
+          value={credentials.phoneNumber}
+          onChange={handleInputChange}
+          required
+        />
+        <label>Date of birth: </label>
+        <StyledInput
+          name="dateOfBirth"
+          type="text"
+          value={credentials.dateOfBirth}
+          onChange={handleInputChange}
+          required
+        />
+        <RegisterButton type="submit">Register</RegisterButton>
       </FormWrapper>
     </RegisterContainer>
   );
