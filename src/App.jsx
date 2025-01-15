@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
+import AvailabilityManager from "./pages/AvailabilityManager";
 import Unauthorized from "./components/Unauthorized";
 import Home from "./components/Home";
 import RequireAuth from "./components/RequireAuth";
@@ -37,6 +38,14 @@ function App() {
               element={
                 <RequireAuth allowedRoles={["ADMIN"]}>
                   <AdminDashboard />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/availability"
+              element={
+                <RequireAuth allowedRoles={["ADMIN"]}>
+                  <AvailabilityManager />
                 </RequireAuth>
               }
             />
