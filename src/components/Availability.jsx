@@ -38,7 +38,7 @@ function Availability() {
   return (
     <AvailabilityContainer>
       <Title>{user}, Here is your availabilities!</Title>
-      <Text>Show availabilities here!</Text>
+      <Text>Show availabilities down here!</Text>
     </AvailabilityContainer>
   );
 }
