@@ -1,8 +1,9 @@
-import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useState } from "react";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
+
 // div with styles
 const UserContainer = styled.div`
   display: flex;
