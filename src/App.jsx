@@ -13,12 +13,14 @@ import Unauthorized from "./components/Unauthorized";
 import Home from "./components/Home";
 import RequireAuth from "./components/RequireAuth";
 import GlobalStyle from "./styles/GlobalStyle";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <AuthProvider>
       <GlobalStyle />
       <div className="content">
+        <Navbar />
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
