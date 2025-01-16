@@ -1,10 +1,12 @@
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
+import { sv } from "date-fns/locale";
+
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "./styles/BasicCalendar.css";
+import "../styles/BasicCalendar.css";
 
 const locales = {
-  "sv-SE": require("date-fns"),
+  "sv-SE": sv,
 };
 
 const localizer = dateFnsLocalizer({
