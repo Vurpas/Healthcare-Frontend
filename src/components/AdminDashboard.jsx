@@ -42,9 +42,6 @@ function AdminDashboard() {
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}!</Text>
       <button onClick={goToAvailability}>Set availability</button>
-      <Link className="home" to="/admin/availability">
-        Home
-      </Link>
       <Logout />
     </AdminContainer>
   );
