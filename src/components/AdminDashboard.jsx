@@ -26,7 +26,7 @@ const Text = styled.p`
 
 function AdminDashboard() {
   const {
-    authState: { user },
+    authState: { user, id },
   } = useAuth();
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
@@ -41,6 +41,7 @@ function AdminDashboard() {
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}!</Text>
+      <Text>Id: {id}!</Text>
       <button onClick={goToAvailability}>Set availability</button>
       <Link to="/admin/availability">Test</Link>
       <Logout />

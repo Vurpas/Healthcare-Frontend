@@ -32,7 +32,7 @@ export const AvailabilityCalendar = () => {
 
   const [availabilities, setAvailabilities] = useState([]);
 
-  console.log("[USER ID]:", authState);
+  console.log("[USER ID]:", authState.id);
 
   // fetch availabilities from backend
   // should be refactored to get all availabilities by id!!
@@ -54,11 +54,9 @@ export const AvailabilityCalendar = () => {
         const parseAvailabilityData = data
           .map((availability) => {
             return availability.availableSlots.map((slot, index) => {
-              const start = new Date(slot.$date.$numberLong);
+              const start = new Date(slot);
               const end = availability.availableSlots[index + 1]
-                ? new Date(
-                    availability.availableSlots[index + 1].$date.$numberLong
-                  )
+                ? new Date(availability.availableSlots[index + 1])
                 : /** default to one hour if there is no next slot */
                   new Date(start.getTime() + 60 + 60 * 1000);
               return {
