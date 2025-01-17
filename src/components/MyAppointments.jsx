@@ -45,6 +45,7 @@ function MyAppointments() {
         flexDirection: "column",
       }}
     >
+      <Title>Dina kommande bokningar</Title>
       {appointments.map((a, i) => {
         return <FetchAppointments key={i} dateTime={a.dateTime} />;
       })}
