@@ -1,4 +1,5 @@
-import { useEffect, use } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, parseISO } from "date-fns";
 import { sv } from "date-fns/locale";
@@ -18,35 +19,35 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const availabilities = [
-  {
-    start: parseISO("2025-01-17T10:00:00"),
-    end: parseISO("2025-01-17T11:00:00"),
-    title: "Test1",
-  },
-  {
-    start: parseISO("2025-01-16T09:00:00"),
-    end: parseISO("2025-01-16T10:00:00"),
-    title: "Test2",
-  },
-];
 // get todays date dynamically to use in the calendar
 const today = new Date();
 
-const AvailabilityCalendar = () => {
+export const AvailabilityCalendar = () => {
+  const {
+    authState: { user, id },
+  } = useAuth();
+  const [users, setUsers] = useState([]);
+
+  const { authState } = useAuth();
+
   const [availabilities, setAvailabilities] = useState([]);
+
+  console.log("[USER ID]:", authState);
 
   // fetch availabilities from backend
   // should be refactored to get all availabilities by id!!
 
   useEffect(() => {
-    fetch("http://localhost:8080/availabilities/all", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
+    fetch(
+      `http://localhost:8080/availability/findbyid?caregiverId=` + authState.id,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         /** map the data to show as events in the calendar */
@@ -78,7 +79,7 @@ const AvailabilityCalendar = () => {
       });
 
     /** remount if user Id changes */
-  }, [id]);
+  }, []);
 
   return (
     <div className="calendars">
@@ -126,5 +127,3 @@ const AvailabilityCalendar = () => {
     </div>
   );
 };
-
-export default AvailabilityCalendar;

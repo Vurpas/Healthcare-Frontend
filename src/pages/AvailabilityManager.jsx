@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 //avkommentera denna import när det är dags för att göra en redirect efter availabilities är satt!
 //import { useNavigate } from "react-router-dom";
-import { AvailabilityCalendar } from "./AvailabilityCalendar";
+import { AvailabilityCalendar } from "../components/AvailabilityCalendar";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 //import Logout from "./Logout";
