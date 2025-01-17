@@ -39,7 +39,7 @@ export const MyCalendar = (props) => (
       events={availabilities}
       startAccessor="start"
       endAccessor="end"
-      style={{ height: 500 }}
+      style={{ height: 550 }}
       /**  set the default view to week */
       defaultView="week"
       /**
