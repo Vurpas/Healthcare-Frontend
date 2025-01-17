@@ -57,7 +57,10 @@ export const MyCalendar = (props) => (
       }
       /**  */
       formats={{
+        /** timegutterFormat is how the time is displayed on the column on
+         * the left side in the calendar */
         timeGutterFormat: "HH:mm",
+        /** this defines how the time format is shown within the calendar */
         eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
           `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(
             end,
