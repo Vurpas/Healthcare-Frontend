@@ -20,12 +20,13 @@ function App() {
     <AuthProvider>
       <GlobalStyle />
       <div className="content">
-        <Navbar />
         <Router>
+          <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+
             <Route
               path="/user/dashboard"
               element={

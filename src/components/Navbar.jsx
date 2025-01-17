@@ -1,19 +1,19 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import RequireAuth from "./RequireAuth";
 import React from "react";
 import Logout from "./Logout";
-import Home from "./Home";
-import UserDashboard from "./UserDashboard";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
+import Home from "./Home";
 
 const NavContainer = styled.div`
   width: 100%;
   height: 100px;
   display: flex;
   justify-content: center;
-  background: rgb(40, 185, 132);
+  background-color: #057d7a;
   box-sizing: border-box;
-  font-family: sans-serif;
 `;
 
 const ListContainer = styled.div`
@@ -24,7 +24,6 @@ const ListContainer = styled.div`
   background: rgb(241, 253, 176);
   list-style: none;
   text-align: center;
-  font-size: 18px;
 `;
 
 const LogoContainer = styled.img`
@@ -45,20 +44,58 @@ const LogOutContainer = styled.p`
   margin: 100px;
 `;
 
-const Navbar = () => (
-  <>
-    <NavContainer>
-      <ListContainer>
-        <LogoContainer src={Logo} />
-        <MyPageContainer>
-          <p>My page</p>
-        </MyPageContainer>
-        <LogOutContainer>
-          <p>Log out</p>
-        </LogOutContainer>
-      </ListContainer>
-    </NavContainer>
-  </>
-);
+const Button = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border: none;
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+`;
 
+/*
+function UserDashboard() {
+  const {
+    authState: { user },
+  } = useAuth();
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
+}
+//ändra routing till page AvailabilityManager om detta fungerar
+const goToUserDashboard = () => {
+  navigate("/user/dashboard");
+};
+*/
+
+const Navbar = () => {
+  return (
+    <>
+      <NavContainer>
+        <ListContainer>
+          <RequireAuth allowedRoles={["ADMIN", "USER"]}>
+            <Link to="/home">
+              <LogoContainer src={Logo} />
+            </Link>
+            <MyPageContainer>
+              <Link to="/user/dashboard">My page</Link>
+            </MyPageContainer>
+            <LogOutContainer>
+              <Link to="/logout"></Link>
+              <Button>
+                <p>Log out</p>
+                <Logout />
+              </Button>
+            </LogOutContainer>
+          </RequireAuth>
+        </ListContainer>
+      </NavContainer>
+    </>
+  );
+};
 export default Navbar;
