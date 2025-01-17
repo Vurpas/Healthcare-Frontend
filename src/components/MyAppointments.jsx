@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import axios from "axios";
 import styled from "styled-components";
 import FetchAppointments from "./FetchAppointments";
 
@@ -8,33 +9,23 @@ const Title = styled.h2`
 `;
 
 function MyAppointments() {
-  const {
-    authState: { user },
-  } = useAuth();
-  const [users, setUsers] = useState([]);
-
-  // Get that authState of the user the logged in user.
-  const { authState } = useAuth();
-
   const [appointments, setAppointments] = useState([]);
 
+  // Get user id from authContext.
+  const {
+    authState: { id },
+  } = useAuth();
+
+  // Fetch appointments belonging to the logged in user.
   useEffect(() => {
-    fetch(
-      `http://localhost:8080/appointment/getbyid?userId=` + authState.id,
-
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => setAppointments(data));
+    const fetchAppointments = async () => {
+      const res = await axios.get(
+        `http://localhost:8080/appointment/getbyid?userId=` + id
+      );
+      setAppointments(res.data);
+    };
+    fetchAppointments();
   }, []);
-
-  console.log(appointments);
 
   return (
     <div

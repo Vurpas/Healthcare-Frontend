@@ -91,7 +91,7 @@ function Login() {
       setAuthState({
         isAuthenticated: true,
         user: username,
-        id: response.id,
+        id: id,
         roles: roles,
         loading: false,
       });
