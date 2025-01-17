@@ -1,18 +1,19 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import RequireAuth from "./RequireAuth";
 import React from "react";
 import Logout from "./Logout";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
-import Home from "./Home";
+import "../styles/Button.css";
 
 const NavContainer = styled.div`
   width: 100%;
-  height: 100px;
+  height: 120px;
   display: flex;
   justify-content: center;
-  background-color: #057d7a;
+  background-color: rgb(168, 211, 210);
   box-sizing: border-box;
 `;
 
@@ -20,8 +21,7 @@ const ListContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80%;
-  background: rgb(241, 253, 176);
+  width: 100%;
   list-style: none;
   text-align: center;
 `;
@@ -29,49 +29,46 @@ const ListContainer = styled.div`
 const LogoContainer = styled.img`
   display: flex;
   width: 140px;
+  height: 120px;
   cursor: pointer;
-`;
-
-const MyPageContainer = styled.p`
-  display: flex;
-  cursor: pointer;
-  margin: 100px;
-`;
-
-const LogOutContainer = styled.p`
-  display: flex;
-  cursor: pointer;
-  margin: 100px;
-`;
-
-const Button = styled.button`
-  cursor: pointer;
-  padding: 10px 30px;
-  background-color: #057d7a;
   border: none;
+  margin-left: 50px;
   font-family: "Roboto", sans-serif;
-  font-size: 18px;
-  font-weight: 400;
+  text-decoration: none;
   &:hover {
-    background-color: #2fadaa;
+    background-color: rgb(146, 193, 192);
     transform: translateY(-3px);
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
 
-/*
-function UserDashboard() {
-  const {
-    authState: { user },
-  } = useAuth();
-  const [users, setUsers] = useState([]);
-  const navigate = useNavigate();
+const MyPageContainer = styled.p`
+  display: flex;
+  cursor: pointer;
+`;
+
+const LogOutContainer = styled.p`
+  display: flex;
+  cursor: pointer;
+  margin-right: 80px;
+`;
+
+function MyPageLink({ to, children }) {
+  return (
+    <Link to={to}>
+      <button className="MyAppointmentsBtn">{children}</button>
+    </Link>
+  );
 }
-//ändra routing till page AvailabilityManager om detta fungerar
-const goToUserDashboard = () => {
-  navigate("/user/dashboard");
-};
-*/
+
+function ifUser() {
+  if (allowedRoles === "USER") {
+    console.log(allowedRoles);
+    return <Link to="/user/dashboard">My appointments</Link>;
+  } else {
+    return <Link to="/admin/dashboard">My appointments</Link>;
+  }
+}
 
 const Navbar = () => {
   return (
@@ -79,18 +76,16 @@ const Navbar = () => {
       <NavContainer>
         <ListContainer>
           <RequireAuth allowedRoles={["ADMIN", "USER"]}>
-            <Link to="/home">
+            <Link to="/user/dashboard">
               <LogoContainer src={Logo} />
             </Link>
             <MyPageContainer>
-              <Link to="/user/dashboard">My page</Link>
+              {ifUser}
+              <MyPageLink to="/user/dashboard">My appointments</MyPageLink>
             </MyPageContainer>
             <LogOutContainer>
               <Link to="/logout"></Link>
-              <Button>
-                <p>Log out</p>
-                <Logout />
-              </Button>
+              <Logout />
             </LogOutContainer>
           </RequireAuth>
         </ListContainer>
