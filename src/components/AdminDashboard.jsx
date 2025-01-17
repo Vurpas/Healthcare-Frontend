@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
+
 // admin page, can only visit if you have role ADMIN
 const AdminContainer = styled.div`
   display: flex;
@@ -46,6 +47,7 @@ const AppointmentsButton = styled.button`
 `;
 
 function AdminDashboard() {
+  // using custom hook to check if the user is authenticated and has the correct role
   const {
     authState: { user },
   } = useAuth();
