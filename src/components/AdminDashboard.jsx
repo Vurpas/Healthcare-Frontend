@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
@@ -42,6 +42,7 @@ function AdminDashboard() {
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}!</Text>
       <button onClick={goToAvailability}>Set availability</button>
+      <Link to="/admin/availability">Test</Link>
       <Logout />
     </AdminContainer>
   );
