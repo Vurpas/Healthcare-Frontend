@@ -81,6 +81,41 @@ function AvailabilityManager() {
           const parseAvailabilityData = data
             .map((availability) => {
               return availability.availableSlots.map((slot, index) => {
+                const start = new Date(slot);
+                const end = availability.availableSlots[index + 1]
+                  ? new Date(availability.availableSlots[index + 1])
+                  : new Date(start.getTime() + 60 * 60 * 1000);
+                return {
+                  start,
+                  end,
+                  title: `Available Slot ${index + 1}`,
+                };
+              });
+            })
+            .flat();
+          setAvailabilities(parseAvailabilityData);
+        } catch (error) {
+          console.error("Unavailable to fetch availabilities:", error);
+        }
+      };
+
+      getAllAvailabilities();
+    }, []);
+    /*  useEffect(() => {
+      const getAllAvailabilities = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/availability/findbyid?caregiverId=` + id,
+
+            {
+              withCredentials: true,
+              // using withCredentials is crutial for and request that needs to check authorization!
+            }
+          );
+          const data = response.data;
+          const parseAvailabilityData = data
+            .map((availability) => {
+              return availability.availableSlots.map((slot, index) => {
                 const start = new Date(
                   new Date(slot).getTime() + 60 * 60 * 1000
                 );
@@ -92,10 +127,6 @@ function AvailabilityManager() {
                         60 * 60 * 1000
                     )
                   : new Date(start.getTime() + 60 * 60 * 1000);
-                /*   const start = new Date(slot);
-                const end = availability.availableSlots[index + 1]
-                  ? new Date(availability.availableSlots[index + 1])
-                  : new Date(start.getTime() + 60 * 60 * 1000); */
                 return {
                   start,
                   end,
@@ -111,7 +142,7 @@ function AvailabilityManager() {
       };
 
       getAllAvailabilities();
-    }, []);
+    }, []); */
 
     /** SAVES SELECTED SLOT IN DATABASE
      * needs to look into selecting multiple slots before saving
@@ -120,7 +151,15 @@ function AvailabilityManager() {
      * NEEDS CORRECTION!
      */
 
-    const handleAvailabilitySlotSelect = ({ start }) => {
+    const handleSlotSelect = ({ start }) => {
+      if (!editMode || !user.isAuthenticated) return;
+      /*sets end time to 60min after start time */
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+      const newAvailability = { start, end, title: "Available Appointment" };
+      setAvailabilities((prev) => [...prev, newAvailability]);
+    };
+    /*  const handleAvailabilitySlotSelect = ({ start }) => {
       // Set end time to 60 minutes after the start time
       const end = new Date(start.getTime() + 60 * 60 * 1000);
 
@@ -134,7 +173,7 @@ function AvailabilityManager() {
       // Update the UI state with the new slot (add to availabilities)
       setSelectedSlots((prev) => [...prev, newSlot]);
       setAvailabilities((prev) => [...prev, newSlot]);
-    };
+    }; */
 
     /* const handleAvailabilitySlotSelect = ({ start }) => {
       sets end time to 60min after start time 
@@ -213,7 +252,7 @@ function AvailabilityManager() {
           // this gives only one slot per hour
           timeslots={1}
           selectable={editMode}
-          onSelectSlot={handleAvailabilitySlotSelect}
+          onSelectSlot={handleSlotSelect}
           //onSelectEvent={handleEventSelect}
         />
       </div>
