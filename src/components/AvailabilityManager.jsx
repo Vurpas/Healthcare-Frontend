@@ -121,7 +121,23 @@ function AvailabilityManager() {
      */
 
     const handleAvailabilitySlotSelect = ({ start }) => {
-      /*sets end time to 60min after start time */
+      // Set end time to 60 minutes after the start time
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+      // Create a new slot
+      const newSlot = {
+        start,
+        end,
+        title: "Available", // You can customize the title if necessary
+      };
+
+      // Update the UI state with the new slot (add to availabilities)
+      setSelectedSlots((prev) => [...prev, newSlot]);
+      setAvailabilities((prev) => [...prev, newSlot]);
+    };
+
+    /* const handleAvailabilitySlotSelect = ({ start }) => {
+      sets end time to 60min after start time 
       const end = new Date(start.getTime() + 60 * 60 * 1000);
 
       const newSlot = start.toISOString();
@@ -131,7 +147,7 @@ function AvailabilityManager() {
 
       const newAvailability = { start, end, title: "Available" };
       setAvailabilities((prev) => [...prev, newAvailability]);
-    };
+    }; */
 
     /**
      * OBS THIS NEEDS TO BE FIXED ALONGSIDE THE BACKEND SERVICE!! INPUTS IN BACKEND IS OFF AND NOT
@@ -229,7 +245,7 @@ function AvailabilityManager() {
       <LogoContainer src={Logo} />
       <Title>Availability Dashboard</Title>
       <Text>Welcome {user}</Text>
-      <button onClick={handleSaveAvailabilitySlots}>Save Selected Slots</button>
+      {/* <button onClick={handleSaveAvailabilitySlots}>Save Selected Slots</button> */}
 
       <button onClick={handleToggleEditMode}>
         {editMode ? "View Availabilities" : "Edit Availabilities"}
