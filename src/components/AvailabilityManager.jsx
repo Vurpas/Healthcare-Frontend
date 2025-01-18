@@ -131,8 +131,6 @@ function AvailabilityManager() {
 
       const newAvailability = { start, end, title: "Available" };
       setAvailabilities((prev) => [...prev, newAvailability]);
-
-      console.log("[AVAILABILITIES]:", availabilities);
     };
 
     /**
