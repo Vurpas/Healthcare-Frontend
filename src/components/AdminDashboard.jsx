@@ -37,30 +37,11 @@ function AdminDashboard() {
   } = useAuth();
   //const [users, setUsers] = useState([]);
   const navigate = useNavigate();
-  const [data, setData] = useState({
-    caregiverId: id,
-    availableSlots: availableSlots,
-  });
 
-  /* console.log("[TESTING USER]", user);
-  console.log("[TESTING USER ID]", id);
-  console.log(typeof id);
- */
   //ändra routing till page AvailabilityManager om detta fungerar
   const goToAvailability = () => {
     navigate("/admin/availability");
   };
-
-  /*   const handleAvailability = async () => {
-    try {
-      await axios.post(`http://localhost:8080/availability`, data, {
-        withCredentials: true,
-      });
-      alert("Availability created!");
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  }; */
 
   return (
     <AdminContainer>

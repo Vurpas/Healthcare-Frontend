@@ -49,7 +49,7 @@ function AvailabilityManager() {
   const {
     authState: { user, id },
   } = useAuth();
-  const [users, setUsers] = useState([]);
+  const [selectedSlots, setSelectedSlots] = useState([]);
 
   // this will enable to toggle from existing availabilities to edit Availabilities
   const [editMode, setEditMode] = useState(false);
@@ -113,34 +113,26 @@ function AvailabilityManager() {
       getAllAvailabilities();
     }, []);
 
-    const handleToggleEditMode = () => {
-      setEditMode((prevMode) => {
-        const newMode = !prevMode;
-        if (!newMode) {
-          // When toggling off edit mode, fetch the updated availability data
-          getAllAvailabilities();
-        }
-        return newMode;
-      });
-    };
-
     /** SAVES SELECTED SLOT IN DATABASE
      * needs to look into selecting multiple slots before saving
      * slot saves -2hrs from selected time in DB and when fetched
      * it only sets +1hr like we got from Postman.
      * NEEDS CORRECTION!
      */
-    const [selectedSlots, setSelectedSlots] = useState([]);
 
     const handleAvailabilitySlotSelect = ({ start }) => {
       /*sets end time to 60min after start time */
       const end = new Date(start.getTime() + 60 * 60 * 1000);
-      //const [data, setData] = useState ({ caregiverId: id, availableSlots: [start.toISOString()] });
+
       const newSlot = start.toISOString();
       setSelectedSlots((prev) => [...prev, newSlot]);
 
+      console.log("[SELECTEDSLOTS]:", selectedSlots);
+
       const newAvailability = { start, end, title: "Available" };
       setAvailabilities((prev) => [...prev, newAvailability]);
+
+      console.log("[AVAILABILITIES]:", availabilities);
     };
 
     /**
@@ -213,7 +205,12 @@ function AvailabilityManager() {
       </div>
     );
   };
+
   const handleSaveAvailabilitySlots = async () => {
+    if (selectedSlots.length === 0) {
+      alert("Please select at least one slot.");
+      return;
+    }
     const data = {
       caregiverId: id,
       availableSlots: selectedSlots,
@@ -223,7 +220,7 @@ function AvailabilityManager() {
       await axios.post(`http://localhost:8080/availability`, data, {
         withCredentials: true,
       });
-      alert("Availability created!");
+      alert("Successfully Saved!");
     } catch (error) {
       console.error("Error creating post:", error);
     }
