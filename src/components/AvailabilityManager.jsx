@@ -53,6 +53,7 @@ function AvailabilityManager() {
 
   // this will enable to toggle from existing availabilities to edit Availabilities
   const [editMode, setEditMode] = useState(false);
+
   // calback function to toggle the state of editMode when called ()
   const handleToggleEditMode = () => {
     setEditMode((prevMode) => !prevMode);
@@ -80,14 +81,25 @@ function AvailabilityManager() {
           const parseAvailabilityData = data
             .map((availability) => {
               return availability.availableSlots.map((slot, index) => {
-                const start = new Date(slot);
+                const start = new Date(
+                  new Date(slot).getTime() + 60 * 60 * 1000
+                );
+                const end = availability.availableSlots[index + 1]
+                  ? new Date(
+                      new Date(
+                        availability.availableSlots[index + 1]
+                      ).getTime() +
+                        60 * 60 * 1000
+                    )
+                  : new Date(start.getTime() + 60 * 60 * 1000);
+                /*   const start = new Date(slot);
                 const end = availability.availableSlots[index + 1]
                   ? new Date(availability.availableSlots[index + 1])
-                  : new Date(start.getTime() + 60 * 60 * 1000);
+                  : new Date(start.getTime() + 60 * 60 * 1000); */
                 return {
                   start,
                   end,
-                  title: `Available Slot ${index + 1}`,
+                  title: `Available`,
                 };
               });
             })
@@ -101,28 +113,34 @@ function AvailabilityManager() {
       getAllAvailabilities();
     }, []);
 
+    const handleToggleEditMode = () => {
+      setEditMode((prevMode) => {
+        const newMode = !prevMode;
+        if (!newMode) {
+          // When toggling off edit mode, fetch the updated availability data
+          getAllAvailabilities();
+        }
+        return newMode;
+      });
+    };
+
     /** SAVES SELECTED SLOT IN DATABASE
      * needs to look into selecting multiple slots before saving
      * slot saves -2hrs from selected time in DB and when fetched
      * it only sets +1hr like we got from Postman.
      * NEEDS CORRECTION!
      */
-    const handleSlotSelect = ({ start }) => {
+    const [selectedSlots, setSelectedSlots] = useState([]);
+
+    const handleAvailabilitySlotSelect = ({ start }) => {
       /*sets end time to 60min after start time */
       const end = new Date(start.getTime() + 60 * 60 * 1000);
-      const data = { caregiverId: id, availableSlots: [start.toISOString()] };
+      //const [data, setData] = useState ({ caregiverId: id, availableSlots: [start.toISOString()] });
+      const newSlot = start.toISOString();
+      setSelectedSlots((prev) => [...prev, newSlot]);
 
-      const newAvailability = { start, end, title: "Available Appointment" };
+      const newAvailability = { start, end, title: "Available" };
       setAvailabilities((prev) => [...prev, newAvailability]);
-
-      try {
-        axios.post(`http://localhost:8080/availability`, data, {
-          withCredentials: true,
-        });
-        alert("Availability created!");
-      } catch (error) {
-        console.error("Error creating post:", error);
-      }
     };
 
     /**
@@ -130,7 +148,105 @@ function AvailabilityManager() {
      * APLICABLE ON HOW OUR AVAILABILITY MANAGMENT IN FRONTEND IS INTENDED TO WORK!!
      */
 
-    /*  const handleEventSelect = async (event) => {
+    return (
+      <div className="calendars">
+        <Calendar
+          localizer={localizer}
+          events={availabilities}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: 550 }}
+          //set the default view to week
+          defaultView="week"
+          /* disables the agenda option by exluding it, since we dont need it,
+          maybe month is redundant too?*/
+          views={["week", "day", "month"]}
+          /* dynamic restriction that only shows 08:00 to 17:00
+          min decides start time an max decides last time of the day */
+          min={
+            new Date(
+              today.getFullYear(),
+              today.getMonth(),
+              today.getDate(),
+              8,
+              0
+            )
+          }
+          max={
+            new Date(
+              today.getFullYear(),
+              today.getMonth(),
+              today.getDate(),
+              17,
+              0
+            )
+          }
+          formats={{
+            /* timegutterFormat is how the time is displayed on the column on
+             the left side in the calendar */
+            timeGutterFormat: "HH:mm",
+            /* this defines how the time format is shown within the calendar 
+             so we dont get AM and PM */
+            eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
+              `${localizer.format(
+                start,
+                "HH:mm",
+                culture
+              )} - ${localizer.format(end, "HH:mm", culture)}`,
+          }}
+          dayPropGetter={(date) => {
+            // hide Saturdays (6) and Sundays (0) to only show mon -> fri
+            if (date.getDay() === 0 || date.getDay() === 6) {
+              return {
+                style: { display: "none" }, // Hide weekends
+              };
+            }
+          }}
+          // restricts duration of each slot to 60min
+          step={60}
+          // this gives only one slot per hour
+          timeslots={1}
+          selectable={editMode}
+          onSelectSlot={handleAvailabilitySlotSelect}
+          //onSelectEvent={handleEventSelect}
+        />
+      </div>
+    );
+  };
+  const handleSaveAvailabilitySlots = async () => {
+    const data = {
+      caregiverId: id,
+      availableSlots: selectedSlots,
+    };
+
+    try {
+      await axios.post(`http://localhost:8080/availability`, data, {
+        withCredentials: true,
+      });
+      alert("Availability created!");
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
+  };
+
+  return (
+    <AvailabilityContainer>
+      <LogoContainer src={Logo} />
+      <Title>Availability Dashboard</Title>
+      <Text>Welcome {user}</Text>
+      <button onClick={handleSaveAvailabilitySlots}>Save Selected Slots</button>
+
+      <button onClick={handleToggleEditMode}>
+        {editMode ? "View Availabilities" : "Edit Availabilities"}
+      </button>
+      <AvailabilityCalendar />
+    </AvailabilityContainer>
+  );
+}
+
+export default AvailabilityManager;
+
+/*  const handleEventSelect = async (event) => {
       if (!editMode) return; // Ensure editing is enabled
       const data = { caregiverId: id, timeSlot: event.start.toISOString() };
 
@@ -155,74 +271,3 @@ function AvailabilityManager() {
         }
       }
     }; */
-
-    return (
-      <div className="calendars">
-        <Calendar
-          localizer={localizer}
-          events={availabilities}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 550 }}
-          /**  set the default view to week */
-          defaultView="week"
-          /**
-           * disables the agenda option by exluding it, since we dont need it,
-           * maybe month is redundant too?*/
-          views={["week", "day", "month"]}
-          /** dynamic restriction that only shows 08:00 to 17:00
-           * min decides start time an max decides last time of the day
-           */
-          min={
-            new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              8,
-              0
-            )
-          }
-          max={
-            new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              17,
-              0
-            )
-          }
-          /**  */
-          formats={{
-            /** timegutterFormat is how the time is displayed on the column on
-             * the left side in the calendar */
-            timeGutterFormat: "HH:mm",
-            /** this defines how the time format is shown within the calendar */
-            eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
-              `${localizer.format(
-                start,
-                "HH:mm",
-                culture
-              )} - ${localizer.format(end, "HH:mm", culture)}`,
-          }}
-          selectable={editMode}
-          onSelectSlot={handleSlotSelect}
-          //onSelectEvent={handleEventSelect}
-        />
-      </div>
-    );
-  };
-
-  return (
-    <AvailabilityContainer>
-      <LogoContainer src={Logo} />
-      <Title>Availability Dashboard</Title>
-      <Text>Welcome {user}</Text>
-      <button onClick={handleToggleEditMode}>
-        {editMode ? "View Availabilities" : "Edit Availabilities"}
-      </button>
-      <AvailabilityCalendar />
-    </AvailabilityContainer>
-  );
-}
-
-export default AvailabilityManager;
