@@ -9,7 +9,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
-import AvailabilityManager from "./pages/AvailabilityManager";
+import AvailabilityManager from "./components/AvailabilityManager";
 import Unauthorized from "./components/Unauthorized";
 import Home from "./components/Home";
 import RequireAuth from "./components/RequireAuth";

@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
+import axios from "axios";
 // admin page, can only visit if you have role ADMIN
 const AdminContainer = styled.div`
   display: flex;
@@ -24,26 +25,49 @@ const Text = styled.p`
   font-size: 18px;
 `;
 
+const availableSlots = [
+  "2025-03-17T09:00:00",
+  "2025-03-16T11:00:00",
+  "2025-03-15T13:00:00",
+];
+
 function AdminDashboard() {
   const {
     authState: { user, id },
   } = useAuth();
-  const [users, setUsers] = useState([]);
+  //const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+  const [data, setData] = useState({
+    caregiverId: id,
+    availableSlots: availableSlots,
+  });
 
+  /* console.log("[TESTING USER]", user);
+  console.log("[TESTING USER ID]", id);
+  console.log(typeof id);
+ */
   //ändra routing till page AvailabilityManager om detta fungerar
   const goToAvailability = () => {
     navigate("/admin/availability");
   };
 
+  /*   const handleAvailability = async () => {
+    try {
+      await axios.post(`http://localhost:8080/availability`, data, {
+        withCredentials: true,
+      });
+      alert("Availability created!");
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
+  }; */
+
   return (
     <AdminContainer>
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
-      <Text>Welcome, {user}!</Text>
-      <Text>Id: {id}!</Text>
+      <Text>Logged in as, {user}</Text>
       <button onClick={goToAvailability}>Set availability</button>
-      <Link to="/admin/availability">Test</Link>
       <Logout />
     </AdminContainer>
   );
