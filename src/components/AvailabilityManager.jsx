@@ -51,14 +51,19 @@ function AvailabilityManager() {
   } = useAuth();
   const [users, setUsers] = useState([]);
 
+  // this will enable to toggle from existing availabilities to edit Availabilities
+  const [editMode, setEditMode] = useState(false);
+  // calback function to toggle the state of editMode when called ()
+  const handleToggleEditMode = () => {
+    setEditMode((prevMode) => !prevMode);
+  };
+
   /** here is the calendar component nested inside this component
    * to avoid complex prop handling since it wont get used outside of this component!
    */
   const AvailabilityCalendar = () => {
-    /** existing availabilities */
+    // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
-    /** this will enable to toggle from existing availabilities to edit Availabilities */
-    const [editMode, setEditMode] = useState(false);
 
     useEffect(() => {
       const getAllAvailabilities = async () => {
@@ -96,10 +101,16 @@ function AvailabilityManager() {
       getAllAvailabilities();
     }, []);
 
+    /** SAVES SELECTED SLOT IN DATABASE
+     * needs to look into selecting multiple slots before saving
+     * slot saves -2hrs from selected time in DB and when fetched
+     * it only sets +1hr like we got from Postman.
+     * NEEDS CORRECTION!
+     */
     const handleSlotSelect = ({ start }) => {
-      if (!editMode || !user.isAuthenticated) return;
       /*sets end time to 60min after start time */
       const end = new Date(start.getTime() + 60 * 60 * 1000);
+      const data = { caregiverId: id, availableSlots: [start.toISOString()] };
 
       const newAvailability = { start, end, title: "Available Appointment" };
       setAvailabilities((prev) => [...prev, newAvailability]);
@@ -112,53 +123,38 @@ function AvailabilityManager() {
       } catch (error) {
         console.error("Error creating post:", error);
       }
-
-      /* send to backend */
-      fetch("http://localhost:8080/availabilities/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        Authorization: `Bearer ${authState.token}`,
-        credentials: "include",
-        body: JSON.stringify({
-          caregiverId: authState.id,
-          availableSlots: [start.toISOString()],
-        }),
-      }).catch((error) =>
-        console.error("Not able to create availability:", error)
-      );
     };
 
-    const handleEventSelect = (event) => {
-      if (!editMode) return;
+    /**
+     * OBS THIS NEEDS TO BE FIXED ALONGSIDE THE BACKEND SERVICE!! INPUTS IN BACKEND IS OFF AND NOT
+     * APLICABLE ON HOW OUR AVAILABILITY MANAGMENT IN FRONTEND IS INTENDED TO WORK!!
+     */
+
+    /*  const handleEventSelect = async (event) => {
+      if (!editMode) return; // Ensure editing is enabled
+      const data = { caregiverId: id, timeSlot: event.start.toISOString() };
 
       if (window.confirm(`Delete availability for: ${event.start}?`)) {
-        /* remove slot from UI */
+        // Remove slot from UI
         setAvailabilities((prev) => prev.filter((e) => e !== event));
 
-        /* send delete request to backend*/
-        fetch(`http://localhost:8080/availabilities/delete/timeslot`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            caregiverId: authState.id,
-            timeSlot: event.start.toISOString(),
-          }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Failed to delete availability slot!");
+        try {
+          // Send delete request to backend using axios
+          const response = await axios.delete(
+            `http://localhost:8080/availabilities/delete/timeslot`,
+            {
+              data, // Axios allows you to pass the body of a DELETE request via the `data` field
+              withCredentials: true, // Include credentials for authorization
             }
-            return response.json();
-          })
-          .then(() => {
-            console.log("Availability slot deleted successfully!");
-          })
-          .catch((error) =>
-            console.error("Unable to delete availability slot:", error)
           );
+          console.log("Availability slot deleted successfully:", response.data);
+        } catch (error) {
+          console.error("Unable to delete availability slot:", error);
+          // Optionally, you could re-add the removed availability in case of an error
+          setAvailabilities((prev) => [...prev, event]);
+        }
       }
-    };
+    }; */
 
     return (
       <div className="calendars">
@@ -208,6 +204,9 @@ function AvailabilityManager() {
                 culture
               )} - ${localizer.format(end, "HH:mm", culture)}`,
           }}
+          selectable={editMode}
+          onSelectSlot={handleSlotSelect}
+          //onSelectEvent={handleEventSelect}
         />
       </div>
     );
@@ -218,6 +217,9 @@ function AvailabilityManager() {
       <LogoContainer src={Logo} />
       <Title>Availability Dashboard</Title>
       <Text>Welcome {user}</Text>
+      <button onClick={handleToggleEditMode}>
+        {editMode ? "View Availabilities" : "Edit Availabilities"}
+      </button>
       <AvailabilityCalendar />
     </AvailabilityContainer>
   );
