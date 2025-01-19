@@ -49,6 +49,7 @@ function AvailabilityManager() {
   const {
     authState: { user, id },
   } = useAuth();
+
   const [selectedSlots, setSelectedSlots] = useState([]);
 
   // this will enable to toggle from existing availabilities to edit Availabilities

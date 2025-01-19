@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
-import axios from "axios";
+
 // admin page, can only visit if you have role ADMIN
 const AdminContainer = styled.div`
   display: flex;
@@ -39,7 +38,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   //ändra routing till page AvailabilityManager om detta fungerar
-  const goToAvailability = () => {
+  const goToCalendar = () => {
     navigate("/admin/availability");
   };
 
@@ -48,7 +47,7 @@ function AdminDashboard() {
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
       <Text>Logged in as, {user}</Text>
-      <button onClick={goToAvailability}>Set availability</button>
+      <button onClick={goToCalendar}>Go To Calendar</button>
       <Logout />
     </AdminContainer>
   );
