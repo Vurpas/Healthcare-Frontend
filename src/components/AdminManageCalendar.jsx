@@ -70,17 +70,19 @@ const AdminManageCalendar = () => {
             }
           );
           const data = response.data;
+          console.log("[RESPONSE DATA]:", data);
           const parseAvailabilityData = data
             .map((availability) => {
               return availability.availableSlots.map((slot, index) => {
                 const start = new Date(slot);
-                const end = availability.availableSlots[index + 1]
-                  ? new Date(availability.availableSlots[index + 1])
-                  : new Date(start.getTime() + 60 * 60 * 1000);
+                //const nextSlot = availability.availableSlots[index + 1];
+                // controls the end of each slot
+                const end = new Date(start.getTime() + 60 * 60 * 1000);
+
                 return {
                   start,
                   end,
-                  title: `Available Slot ${index + 1}`,
+                  title: `Available`,
                 };
               });
             })
@@ -93,6 +95,8 @@ const AdminManageCalendar = () => {
 
       getAllAvailabilities();
     }, []);
+
+    console.log("[RETRIEVED AVAILABILITIES]:", availabilities);
 
     //returning the calendar
 
