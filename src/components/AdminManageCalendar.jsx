@@ -55,10 +55,18 @@ const AdminManageCalendar = () => {
 
   const CaregiverCalendar = () => {
     // calendar start
+
+    // calendar state false = view, true = edit mode
+    const [editMode, setEditMode] = useState(false);
+
+    //state of slots selected in edit mode
+    const [selectedSlots, setSelectedSlots] = useState([]);
+
     // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
 
     useEffect(() => {
+      // api call
       const getAllAvailabilities = async () => {
         try {
           const response = await axios.get(
@@ -94,77 +102,127 @@ const AdminManageCalendar = () => {
       };
 
       getAllAvailabilities();
+      // api call ends
     }, []);
+    //console.log("[RETRIEVED AVAILABILITIES]:", availabilities);
 
-    console.log("[RETRIEVED AVAILABILITIES]:", availabilities);
+    const handleSlotSelect = ({ start, end }) => {
+      // create new slot
+      const newSlot = {
+        start,
+        end,
+        title: `New slot`,
+      };
+
+      //add selected slots to availabilities state to be visable in calendar
+      setAvailabilities((prev) => [...prev, newSlot]);
+
+      //add selected slots to the state that gets sent to backend
+      setSelectedSlots((prev) => [...prev, start]);
+    };
+
+    console.log("[SELECTEDSLOTS]:", selectedSlots);
+
+    // calback function to toggle the state of editMode when called ()
+    const handleToggleEditMode = () => {
+      setEditMode((prevMode) => !prevMode);
+    };
+
+    //save selected slots to backend logic
+    const handleSaveAvailabilitySlots = async () => {
+      if (selectedSlots.length === 0) {
+        alert("Please select at least one slot.");
+        return;
+      }
+      const data = {
+        caregiverId: id,
+        availableSlots: selectedSlots,
+      };
+
+      try {
+        await axios.post(`http://localhost:8080/availability`, data, {
+          withCredentials: true,
+        });
+        alert("Successfully Saved!");
+      } catch (error) {
+        console.error("Error creating post:", error);
+      }
+    };
 
     //returning the calendar
-
     return (
-      <div className="calendars">
-        <Calendar
-          localizer={localizer}
-          events={availabilities}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 550 }}
-          //set the default view to week
-          defaultView="week"
-          /* disables the agenda option by exluding it, since we dont need it,
+      <div>
+        <button onClick={handleSaveAvailabilitySlots}>
+          Save Selected Slots
+        </button>
+
+        <button onClick={handleToggleEditMode}>
+          {editMode ? "View Availabilities" : "Edit Availabilities"}
+        </button>
+        <div className="calendars">
+          <Calendar
+            localizer={localizer}
+            events={availabilities}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 550 }}
+            //set the default view to week
+            defaultView="week"
+            /* disables the agenda option by exluding it, since we dont need it,
             maybe month is redundant too?*/
-          views={["week", "day", "month"]}
-          /* dynamic restriction that only shows 08:00 to 17:00
+            views={["week", "day", "month"]}
+            /* dynamic restriction that only shows 08:00 to 17:00
             min decides start time an max decides last time of the day */
-          min={
-            new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              8,
-              0
-            )
-          }
-          max={
-            new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              17,
-              0
-            )
-          }
-          formats={{
-            /* timegutterFormat is how the time is displayed on the column on
-               the left side in the calendar */
-            timeGutterFormat: "HH:mm",
-            /* this defines how the time format is shown within the calendar 
-               so we dont get AM and PM */
-            eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
-              `${localizer.format(
-                start,
-                "HH:mm",
-                culture
-              )} - ${localizer.format(end, "HH:mm", culture)}`,
-          }}
-          dayPropGetter={(date) => {
-            // hide Saturdays (6) and Sundays (0) to only show mon -> fri
-            if (date.getDay() === 0 || date.getDay() === 6) {
-              return {
-                style: { display: "none" }, // Hide weekends
-              };
+            min={
+              new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate(),
+                8,
+                0
+              )
             }
-          }}
-          // restricts duration of each slot to 60min
-          step={60}
-          // this gives only one slot per hour
-          timeslots={1}
-          //selectable={editMode}
-          //onSelectSlot={handleSlotSelect}
-          //onSelectEvent={handleEventSelect}
-        />
+            max={
+              new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate(),
+                17,
+                0
+              )
+            }
+            formats={{
+              /* timegutterFormat is how the time is displayed on the column on
+               the left side in the calendar */
+              timeGutterFormat: "HH:mm",
+              /* this defines how the time format is shown within the calendar 
+               so we dont get AM and PM */
+              eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
+                `${localizer.format(
+                  start,
+                  "HH:mm",
+                  culture
+                )} - ${localizer.format(end, "HH:mm", culture)}`,
+            }}
+            dayPropGetter={(date) => {
+              // hide Saturdays (6) and Sundays (0) to only show mon -> fri
+              if (date.getDay() === 0 || date.getDay() === 6) {
+                return {
+                  style: { display: "none" }, // Hide weekends
+                };
+              }
+            }}
+            // restricts duration of each slot to 60min
+            step={60}
+            // this gives only one slot per hour
+            timeslots={1}
+            selectable={editMode}
+            onSelectSlot={handleSlotSelect}
+            //onSelectEvent={handleEventSelect}
+          />
+        </div>
       </div>
     );
-
     //calendar scope ends
   };
 
@@ -173,11 +231,6 @@ const AdminManageCalendar = () => {
       <LogoContainer src={Logo} />
       <Title>Availability Dashboard</Title>
       <Text>Welcome {user}</Text>
-      {/* <button onClick={handleSaveAvailabilitySlots}>Save Selected Slots</button> */}
-
-      {/*  <button onClick={handleToggleEditMode}>
-        {editMode ? "View Availabilities" : "Edit Availabilities"}
-      </button> */}
       <CaregiverCalendar />
     </AvailabilityContainer>
   );
@@ -186,3 +239,30 @@ const AdminManageCalendar = () => {
 };
 
 export default AdminManageCalendar;
+
+// delete logic
+/*  const handleEventSelect = async (event) => {
+      if (!editMode) return; // Ensure editing is enabled
+      const data = { caregiverId: id, timeSlot: event.start.toISOString() };
+
+      if (window.confirm(`Delete availability for: ${event.start}?`)) {
+        // Remove slot from UI
+        setAvailabilities((prev) => prev.filter((e) => e !== event));
+
+        try {
+          // Send delete request to backend using axios
+          const response = await axios.delete(
+            `http://localhost:8080/availabilities/delete/timeslot`,
+            {
+              data, // Axios allows you to pass the body of a DELETE request via the `data` field
+              withCredentials: true, // Include credentials for authorization
+            }
+          );
+          console.log("Availability slot deleted successfully:", response.data);
+        } catch (error) {
+          console.error("Unable to delete availability slot:", error);
+          // Optionally, you could re-add the removed availability in case of an error
+          setAvailabilities((prev) => [...prev, event]);
+        }
+      }
+    }; */
