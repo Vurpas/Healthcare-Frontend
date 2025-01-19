@@ -34,25 +34,24 @@ const ButtonContainer = styled.div`
   gap: 10px;
   margin-top: 20px;
   margin-bottom: 20px;
-  padding-right: 20px;
+  padding-right: 30px;
 `;
 
 const StyledButton = styled.button`
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
-    background-color: #0056b3;
-  }
-
-  &:focus {
-    outline: none;
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
 
@@ -63,7 +62,7 @@ const CalendarWrapper = styled.div`
 `;
 
 const LogoContainer = styled.img`
-  height: 20rem;
+  height: 15rem;
 `;
 
 const Title = styled.h2`
@@ -89,7 +88,7 @@ const localizer = dateFnsLocalizer({
 // get todays date dynamically to use in the calendar
 const today = new Date();
 
-const AdminManageCalendar = () => {
+function AdminManageCalendar() {
   // main scope
 
   // retrieving logged in user and id
@@ -127,13 +126,14 @@ const AdminManageCalendar = () => {
             .map((availability) => {
               return availability.availableSlots.map((slot) => {
                 const start = new Date(slot);
-                // controls the end of each slot
+                // controls the end time of each slot
                 const end = new Date(start.getTime() + 60 * 60 * 1000);
 
                 return {
                   start,
                   end,
                   title: "Available",
+                  availabilityId: availability.id,
                 };
               });
             })
@@ -146,11 +146,11 @@ const AdminManageCalendar = () => {
 
       getAllAvailabilities();
       // api call ends
+      // remount useEffect everytime editMode changes to make sure the calendar
+      // data is up to date.
     }, [editMode]);
-    console.log("[RETRIEVED AVAILABILITIES]:", availabilities);
 
     // select slot logic
-
     const handleSlotSelect = ({ start, end }) => {
       // create new slot
       const newSlot = {
@@ -171,6 +171,47 @@ const AdminManageCalendar = () => {
       setSelectedSlots((prev) => [...prev, timeCorrection]);
     };
 
+    // custom styles for slots both in editMode and default
+    const eventStyleGetter = (event) => {
+      // Loop through selected slots and check if the event's start time is one of the selected slots
+      if (editMode) {
+        const matchingSlot = selectedSlots.find(
+          (slot) => slot.getTime() === event.start.getTime() + 60 * 60 * 1000 // Correct the event's time by subtracting 1 hour
+        );
+
+        if (matchingSlot) {
+          return {
+            // style for selected slots in editMode
+            style: {
+              backgroundColor: "#057D7A",
+              color: "white",
+              borderRadius: "8px",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              border: `2px solid ${"#5b8b99"}`,
+            },
+          };
+        }
+      }
+      // Default style for other events (non-selected)
+      return {
+        style: {
+          backgroundColor: "#76B3C8",
+          color: "slate",
+          borderRadius: "8px",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+        },
+      };
+    };
+
     console.log("[SELECTEDSLOTS]:", selectedSlots);
 
     // calback function to toggle the state of editMode when called ()
@@ -181,7 +222,7 @@ const AdminManageCalendar = () => {
     //save selected slots to backend logic
     const handleSaveAvailabilitySlots = async () => {
       if (selectedSlots.length === 0) {
-        alert("Please select at least one slot.");
+        alert("You have no slots selected!");
         return;
       }
       const data = {
@@ -193,7 +234,10 @@ const AdminManageCalendar = () => {
         await axios.post(`http://localhost:8080/availability`, data, {
           withCredentials: true,
         });
-        alert("Successfully Saved!");
+        alert("Changes are now saved");
+        // untoggles editmode when saved
+        setEditMode(false);
+        setSelectedSlots([]);
       } catch (error) {
         console.error("Error creating post:", error);
       }
@@ -261,6 +305,7 @@ const AdminManageCalendar = () => {
             timeslots={1}
             selectable={editMode}
             onSelectSlot={handleSlotSelect}
+            eventPropGetter={eventStyleGetter}
             //onSelectEvent={handleEventSelect}
           />
         </CalendarWrapper>
@@ -270,9 +315,8 @@ const AdminManageCalendar = () => {
               Save Changes
             </StyledButton>
           )}
-
           <StyledButton onClick={handleToggleEditMode}>
-            {editMode ? "View Availabilities" : "Edit Availabilities"}
+            {editMode ? "Go Back" : "Edit Calendar"}
           </StyledButton>
         </ButtonContainer>
       </div>
@@ -292,33 +336,6 @@ const AdminManageCalendar = () => {
   );
 
   // main scope ends
-};
+}
 
 export default AdminManageCalendar;
-
-// delete logic
-/*  const handleEventSelect = async (event) => {
-      if (!editMode) return; // Ensure editing is enabled
-      const data = { caregiverId: id, timeSlot: event.start.toISOString() };
-
-      if (window.confirm(`Delete availability for: ${event.start}?`)) {
-        // Remove slot from UI
-        setAvailabilities((prev) => prev.filter((e) => e !== event));
-
-        try {
-          // Send delete request to backend using axios
-          const response = await axios.delete(
-            `http://localhost:8080/availabilities/delete/timeslot`,
-            {
-              data, // Axios allows you to pass the body of a DELETE request via the `data` field
-              withCredentials: true, // Include credentials for authorization
-            }
-          );
-          console.log("Availability slot deleted successfully:", response.data);
-        } catch (error) {
-          console.error("Unable to delete availability slot:", error);
-          // Optionally, you could re-add the removed availability in case of an error
-          setAvailabilities((prev) => [...prev, event]);
-        }
-      }
-    }; */
