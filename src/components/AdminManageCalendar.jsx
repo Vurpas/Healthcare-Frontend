@@ -70,7 +70,7 @@ const AdminManageCalendar = () => {
       const getAllAvailabilities = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:8080/availability/findbyid?caregiverId=` + id,
+            `http://localhost:8080/availability/${id}`,
 
             {
               withCredentials: true,
@@ -78,10 +78,12 @@ const AdminManageCalendar = () => {
             }
           );
           const data = response.data;
-          console.log("[RESPONSE DATA]:", data);
+
+          console.log("[RESPONSE DATA]:", JSON.stringify(data));
           const parseAvailabilityData = data
+
             .map((availability) => {
-              return availability.availableSlots.map((slot, index) => {
+              return availability.availableSlots.map((slot) => {
                 const start = new Date(slot);
                 //const nextSlot = availability.availableSlots[index + 1];
                 // controls the end of each slot
@@ -90,7 +92,7 @@ const AdminManageCalendar = () => {
                 return {
                   start,
                   end,
-                  title: `Available`,
+                  title: "Available",
                 };
               });
             })
