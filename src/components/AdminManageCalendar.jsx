@@ -8,7 +8,6 @@ import styled from "styled-components";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, parseISO } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "../styles/BasicCalendar.css";
 import { sv } from "date-fns/locale";
 
 const AvailabilityContainer = styled.div`
@@ -16,6 +15,51 @@ const AvailabilityContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+`;
+
+const CalendarContainer = styled.div`
+  width: 90%; /* Adjust width to make it responsive */
+  max-width: 1200px; /* Optional max-width for larger screens */
+  margin-top: 20px; /* Add spacing from other elements */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+  border: 1px solid #e0e0e0; /* Optional: light border */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Prevent content overflow */
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-right: 20px;
+`;
+
+const StyledButton = styled.button`
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+
+  &:focus {
+    outline: none;
+  }
+`;
+
+const CalendarWrapper = styled.div`
+  width: 100%;
+  max-width: 1200px; /* Optional: adjust max-width */
+  margin: 0 auto;
 `;
 
 const LogoContainer = styled.img`
@@ -78,14 +122,11 @@ const AdminManageCalendar = () => {
             }
           );
           const data = response.data;
-
-          console.log("[RESPONSE DATA]:", JSON.stringify(data));
           const parseAvailabilityData = data
 
             .map((availability) => {
               return availability.availableSlots.map((slot) => {
                 const start = new Date(slot);
-                //const nextSlot = availability.availableSlots[index + 1];
                 // controls the end of each slot
                 const end = new Date(start.getTime() + 60 * 60 * 1000);
 
@@ -105,22 +146,29 @@ const AdminManageCalendar = () => {
 
       getAllAvailabilities();
       // api call ends
-    }, []);
-    //console.log("[RETRIEVED AVAILABILITIES]:", availabilities);
+    }, [editMode]);
+    console.log("[RETRIEVED AVAILABILITIES]:", availabilities);
+
+    // select slot logic
 
     const handleSlotSelect = ({ start, end }) => {
       // create new slot
       const newSlot = {
         start,
         end,
-        title: `New slot`,
+        title: `New Availability`,
       };
 
       //add selected slots to availabilities state to be visable in calendar
       setAvailabilities((prev) => [...prev, newSlot]);
 
+      // levels out the time difference between data sent into mongoDB(-2hrs) and
+      // data beeing fetched wich is only +1hr so right time slot gets filled when
+      // fetched from backend.
+      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+
       //add selected slots to the state that gets sent to backend
-      setSelectedSlots((prev) => [...prev, start]);
+      setSelectedSlots((prev) => [...prev, timeCorrection]);
     };
 
     console.log("[SELECTEDSLOTS]:", selectedSlots);
@@ -154,14 +202,7 @@ const AdminManageCalendar = () => {
     //returning the calendar
     return (
       <div>
-        <button onClick={handleSaveAvailabilitySlots}>
-          Save Selected Slots
-        </button>
-
-        <button onClick={handleToggleEditMode}>
-          {editMode ? "View Availabilities" : "Edit Availabilities"}
-        </button>
-        <div className="calendars">
+        <CalendarWrapper>
           <Calendar
             localizer={localizer}
             events={availabilities}
@@ -172,7 +213,7 @@ const AdminManageCalendar = () => {
             defaultView="week"
             /* disables the agenda option by exluding it, since we dont need it,
             maybe month is redundant too?*/
-            views={["week", "day", "month"]}
+            views={["week", "day"]}
             /* dynamic restriction that only shows 08:00 to 17:00
             min decides start time an max decides last time of the day */
             min={
@@ -222,7 +263,18 @@ const AdminManageCalendar = () => {
             onSelectSlot={handleSlotSelect}
             //onSelectEvent={handleEventSelect}
           />
-        </div>
+        </CalendarWrapper>
+        <ButtonContainer>
+          {editMode && (
+            <StyledButton onClick={handleSaveAvailabilitySlots}>
+              Save Changes
+            </StyledButton>
+          )}
+
+          <StyledButton onClick={handleToggleEditMode}>
+            {editMode ? "View Availabilities" : "Edit Availabilities"}
+          </StyledButton>
+        </ButtonContainer>
       </div>
     );
     //calendar scope ends
@@ -233,7 +285,9 @@ const AdminManageCalendar = () => {
       <LogoContainer src={Logo} />
       <Title>Availability Dashboard</Title>
       <Text>Welcome {user}</Text>
-      <CaregiverCalendar />
+      <CalendarContainer>
+        <CaregiverCalendar />
+      </CalendarContainer>
     </AvailabilityContainer>
   );
 
