@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, parseISO } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import "../styles/Calendar.css";
 import { sv } from "date-fns/locale";
 
 const AvailabilityContainer = styled.div`
@@ -108,6 +109,13 @@ function AdminManageCalendar() {
     // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
 
+    // existing appointments
+    const [appointments, setAppointments] = useState([]);
+
+    // state to be able to choose to show availabilities and appointments or both
+    const [displayMode, setDisplayMode] = useState("showAppointments");
+
+    // retrieving all availabilities created by logged in user
     useEffect(() => {
       // api call
       const getAllAvailabilities = async () => {
@@ -150,6 +158,60 @@ function AdminManageCalendar() {
       // remount useEffect everytime editMode changes to make sure the calendar
       // data is up to date.
     }, [editMode]);
+
+    // Fetch appointments belonging to the logged in caregiver.
+
+    useEffect(() => {
+      // api call
+      const getAllAppointments = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/appointment/getbyid?userId=` + id,
+            {
+              withCredentials: true,
+              // using withCredentials is crutial for and request that needs to check authorization!
+            }
+          );
+          const data = response.data;
+          const parseAppointmentData = data.map((appointment) => {
+            const {
+              caregiverId: { username: Caregiver, id: caregiverId },
+              patientId: { username: Patient, id: patientId },
+              dateTime,
+              status,
+              id: appointmentId,
+            } = appointment;
+
+            const start = new Date(dateTime);
+            const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+            return {
+              Caregiver,
+              Patient,
+              title: `Appointment with ${Patient}`,
+              start,
+              end,
+              status,
+              appointmentId,
+              caregiverId,
+              patientId,
+            };
+          });
+
+          setAppointments(parseAppointmentData);
+        } catch (error) {
+          console.error("Unavailable to fetch appointments:", error);
+        }
+      };
+
+      getAllAppointments();
+      // api call ends
+    }, []);
+
+    // log appointments state whenever it updates
+    useEffect(() => {
+      console.log("Appointments state updated:", appointments);
+    }, [appointments]);
 
     // select slot logic
     const handleSlotSelect = ({ start, end }) => {
@@ -244,13 +306,31 @@ function AdminManageCalendar() {
       }
     };
 
+    // eventsToShow provides the ability to toggle between rendered events
+    const eventsToShow = (() => {
+      if (displayMode === "showAppointments") return appointments;
+      if (displayMode === "showAvailabilities") return availabilities;
+      if (displayMode === "showBoth")
+        return [...appointments, ...availabilities];
+      return [];
+    })();
+
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
+          <div style={{ marginBottom: "1rem" }}>
+            <button onClick={() => setDisplayMode("showAppointments")}>
+              My Appointments
+            </button>
+            <button onClick={() => setDisplayMode("showAvailabilities")}>
+              My Availabilities
+            </button>
+            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>
+          </div>
           <Calendar
             localizer={localizer}
-            events={availabilities}
+            events={eventsToShow}
             startAccessor="start"
             endAccessor="end"
             style={{ height: 550 }}
