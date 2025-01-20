@@ -327,8 +327,8 @@ function AdminManageCalendar() {
   return (
     <AvailabilityContainer>
       <LogoContainer src={Logo} />
-      <Title>Availability Dashboard</Title>
-      <Text>Welcome {user}</Text>
+      <Title>{user} Schedule Dashboard</Title>
+      <Text>Availability and Appointments</Text>
       <CalendarContainer>
         <CaregiverCalendar />
       </CalendarContainer>

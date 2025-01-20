@@ -12,6 +12,25 @@ const AdminContainer = styled.div`
   flex-direction: column;
 `;
 
+const StyledButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+`;
+
 const LogoContainer = styled.img`
   height: 20rem;
 `;
@@ -46,8 +65,8 @@ function AdminDashboard() {
     <AdminContainer>
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
-      <Text>Logged in as, {user}</Text>
-      <button onClick={goToCalendar}>Go To Calendar</button>
+      <Text>Welcome, {user}</Text>
+      <StyledButton onClick={goToCalendar}>Go To Calendar</StyledButton>
       <Logout />
     </AdminContainer>
   );
