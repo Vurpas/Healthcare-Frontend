@@ -118,7 +118,7 @@ function UserManageCalendar() {
         try {
           const response = await axios.get(
             //change this endpoint when implemented
-            `http://localhost:8080/availability/${id}`,
+            `http://localhost:8080/availability/all`,
 
             {
               withCredentials: true,
@@ -129,6 +129,10 @@ function UserManageCalendar() {
           const parseAvailabilityData = data
 
             .map((availability) => {
+              // get caregiverId and username (maybe firstname instead??) from the response
+              const { caregiverId } = availability;
+              const username = caregiverId.username;
+
               return availability.availableSlots.map((slot) => {
                 const start = new Date(slot);
                 // controls the end time of each slot
@@ -138,7 +142,9 @@ function UserManageCalendar() {
                   start,
                   end,
                   title: "Available",
+                  doctor: username,
                   availabilityId: availability.id,
+                  caregiverId: caregiverId.id,
                 };
               });
             })
@@ -155,28 +161,28 @@ function UserManageCalendar() {
       // data is up to date.
     }, [editMode]);
 
-    // select slot logic
-    const handleSlotSelect = ({ start, end }) => {
-      // create new slot
-      const newSlot = {
-        start,
-        end,
-        title: `New Availability`,
-      };
+    //console.log("[availabilities]:", availabilities);
 
-      //add selected slots to availabilities state to be visable in calendar
-      setAvailabilities((prev) => [...prev, newSlot]);
+    /** Selected slot logic scan be written here!
+     *
+     * old logic from set availability when user is ADMIN
+     * is commented out at the bottom of this file.
+     */
 
-      // levels out the time difference between data sent into mongoDB(-2hrs) and
-      // data beeing fetched wich is only +1hr so right time slot gets filled when
-      // fetched from backend.
-      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
-
-      //add selected slots to the state that gets sent to backend
-      setSelectedSlots((prev) => [...prev, timeCorrection]);
+    // method to check what data each slot contains
+    const handleEventSelect = (event) => {
+      console.log("[EVENT CLICKED]", {
+        id: event.availabilityId,
+        start: event.start,
+        end: event.end,
+        title: event.title,
+        doctor: event.doctor,
+        caregiverId: event.caregiverId,
+      });
     };
 
     // custom styles for slots both in editMode and default
+
     const eventStyleGetter = (event) => {
       // Loop through selected slots and check if the event's start time is one of the selected slots
       if (editMode) {
@@ -217,36 +223,17 @@ function UserManageCalendar() {
       };
     };
 
-    console.log("[SELECTEDSLOTS]:", selectedSlots);
+    //console.log("[SELECTEDSLOTS]:", selectedSlots);
 
     // calback function to toggle the state of editMode when called ()
     const handleToggleEditMode = () => {
       setEditMode((prevMode) => !prevMode);
     };
 
-    //save selected slots to backend logic
-    const handleSaveAvailabilitySlots = async () => {
-      if (selectedSlots.length === 0) {
-        alert("You have no slots selected!");
-        return;
-      }
-      const data = {
-        caregiverId: id,
-        availableSlots: selectedSlots,
-      };
-
-      try {
-        await axios.post(`http://localhost:8080/availability`, data, {
-          withCredentials: true,
-        });
-        alert("Changes are now saved");
-        // untoggles editmode when saved
-        setEditMode(false);
-        setSelectedSlots([]);
-      } catch (error) {
-        console.error("Error creating post:", error);
-      }
-    };
+    /** logic for selecting availability and convert it to a new appointment
+     * can be written here.
+     * save new availabilities logic is saved in the bottom of the file
+     */
 
     //returning the calendar
     return (
@@ -309,9 +296,9 @@ function UserManageCalendar() {
             // this gives only one slot per hour
             timeslots={1}
             selectable={editMode}
-            onSelectSlot={handleSlotSelect}
+            //onSelectSlot={handleSlotSelect}
             eventPropGetter={eventStyleGetter}
-            //onSelectEvent={handleEventSelect}
+            onSelectEvent={handleEventSelect}
           />
         </CalendarWrapper>
         <ButtonContainer>
@@ -329,6 +316,7 @@ function UserManageCalendar() {
     //calendar scope ends
   };
 
+  // the main return that renders the entire component including the calendar
   return (
     <MainContainer>
       <LogoContainer src={Logo} />
@@ -344,3 +332,46 @@ function UserManageCalendar() {
 }
 
 export default UserManageCalendar;
+
+/*  const handleSlotSelect = ({ start, end }) => {
+      // create new slot
+      const newSlot = {
+        start,
+        end,
+        title: `New Availability`,
+      };
+
+      //add selected slots to availabilities state to be visable in calendar
+      setAvailabilities((prev) => [...prev, newSlot]);
+
+      // levels out the time difference between data sent into mongoDB(-2hrs) and
+      // data beeing fetched wich is only +1hr so right time slot gets filled when
+      // fetched from backend.
+      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+
+      //add selected slots to the state that gets sent to backend
+      setSelectedSlots((prev) => [...prev, timeCorrection]);
+    }; */
+
+/* const handleSaveAvailabilitySlots = async () => {
+      if (selectedSlots.length === 0) {
+        alert("You have no slots selected!");
+        return;
+      }
+      const data = {
+        caregiverId: id,
+        availableSlots: selectedSlots,
+      };
+
+      try {
+        await axios.post(`http://localhost:8080/availability`, data, {
+          withCredentials: true,
+        });
+        alert("Changes are now saved");
+        // untoggles editmode when saved
+        setEditMode(false);
+        setSelectedSlots([]);
+      } catch (error) {
+        console.error("Error creating post:", error);
+      }
+    }; */

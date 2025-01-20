@@ -14,6 +14,7 @@ import Home from "./components/Home";
 import RequireAuth from "./components/RequireAuth";
 import GlobalStyle from "./styles/GlobalStyle";
 import MyAppointments from "./components/MyAppointments";
+import UserManageCalendar from "./components/UserManageCalendar";
 
 function App() {
   return (
