@@ -7,9 +7,9 @@ const LogOutButton = styled.button`
   background-color: #057d7a;
   border-radius: 10px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 400;
   color: #fff;
-  margin-top: 40px;
+  margin-top: 0px;
   transition: background-color 0.3s ease, transform 0.2s ease,
     box-shadow 0.2s ease;
   text-align: center;

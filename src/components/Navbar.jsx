@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
-import RequireAuth from "./RequireAuth";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import React from "react";
 import Logout from "./Logout";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import "../styles/Button.css";
+import RequireAuth from "./RequireAuth";
 
 const NavContainer = styled.div`
   width: 100%;
@@ -27,7 +28,7 @@ const ListContainer = styled.div`
 const LogoContainer = styled.img`
   display: flex;
   width: 140px;
-  height: 120px;
+  height: 115px;
   cursor: pointer;
   border: none;
   margin-left: 30px;
@@ -51,28 +52,54 @@ const LogOutContainer = styled.p`
   margin-right: 60px;
 `;
 
-function MyPageLink({ to, children }) {
-  return (
-    <Link to={to}>
-      <button className="MyAppointmentsBtn">{children}</button>
-    </Link>
-  );
-}
+const MyAppointmentsButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+  text-align: center;
+  border: none;
 
-const Navbar = (props) => {
-  const role = props.role;
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const Navbar = () => {
+  const {
+    authState: { roles },
+  } = useAuth();
+
+  const navigate = useNavigate();
+
+  const routeChange = (path) => {
+    navigate(path);
+  };
+
   return (
-    <RequireAuth allowedRoles={["ADMIN", "USER"]}>
+    <RequireAuth roles={["USER", "ADMIN"]}>
       <>
         <NavContainer>
           <ListContainer>
-            <Link to={`${role.toLowerCase()}/appointments`}>
-              <LogoContainer src={Logo} />
-            </Link>
+            <LogoContainer
+              src={Logo}
+              onClick={() =>
+                routeChange(`/${roles[0].toLowerCase()}/dashboard`)
+              }
+            />
             <MyPageContainer>
-              <MyPageLink to={`${role.toLowerCase()}/appointments`}>
-                My appointments
-              </MyPageLink>
+              <MyAppointmentsButton
+                onClick={() => routeChange("/appointments")}
+              >
+                My Appointments
+              </MyAppointmentsButton>
             </MyPageContainer>
             <LogOutContainer>
               <Link to="/logout"></Link>

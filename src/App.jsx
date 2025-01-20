@@ -13,8 +13,8 @@ import Unauthorized from "./components/Unauthorized";
 import Home from "./components/Home";
 import RequireAuth from "./components/RequireAuth";
 import GlobalStyle from "./styles/GlobalStyle";
-import Navbar from "./components/Navbar";
 import MyAppointments from "./components/MyAppointments";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
@@ -22,6 +22,7 @@ function App() {
       <GlobalStyle />
       <div className="content">
         <Router>
+          <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -38,7 +39,6 @@ function App() {
               path="/user/dashboard"
               element={
                 <RequireAuth allowedRoles={["USER"]}>
-                  <Navbar role="USER" />
                   <UserDashboard />
                 </RequireAuth>
               }
@@ -47,7 +47,6 @@ function App() {
               path="/admin/dashboard"
               element={
                 <RequireAuth allowedRoles={["ADMIN"]}>
-                  <Navbar role="ADMIN" />
                   <AdminDashboard />
                 </RequireAuth>
               }
