@@ -42,6 +42,14 @@ function App() {
               }
             />
             <Route
+              path="/user/calendar"
+              element={
+                <RequireAuth allowedRoles={["USER"]}>
+                  <UserManageCalendar />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/admin/dashboard"
               element={
                 <RequireAuth allowedRoles={["ADMIN"]}>
