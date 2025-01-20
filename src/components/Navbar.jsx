@@ -7,6 +7,46 @@ import styled from "styled-components";
 import "../styles/Button.css";
 import RequireAuth from "./RequireAuth";
 
+const Navbar = () => {
+  const {
+    authState: { roles },
+  } = useAuth();
+
+  const navigate = useNavigate();
+  const routeChange = (path) => {
+    navigate(path);
+  };
+
+  return (
+    <RequireAuth roles={["USER", "ADMIN"]}>
+      <>
+        <NavContainer>
+          <ListContainer>
+            <LogoContainer
+              src={Logo}
+              onClick={() =>
+                routeChange(`/${roles[0].toLowerCase()}/dashboard`)
+              }
+            />
+            <MyPageContainer>
+              <MyAppointmentsButton
+                onClick={() => routeChange("/appointments")}
+              >
+                My Appointments
+              </MyAppointmentsButton>
+            </MyPageContainer>
+            <LogOutContainer>
+              <Link to="/logout"></Link>
+              <Logout />
+            </LogOutContainer>
+          </ListContainer>
+        </NavContainer>
+      </>
+    </RequireAuth>
+  );
+};
+export default Navbar;
+
 const NavContainer = styled.div`
   width: 100%;
   height: 120px;
@@ -71,44 +111,3 @@ const MyAppointmentsButton = styled.button`
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
-
-const Navbar = () => {
-  const {
-    authState: { roles },
-  } = useAuth();
-
-  const navigate = useNavigate();
-
-  const routeChange = (path) => {
-    navigate(path);
-  };
-
-  return (
-    <RequireAuth roles={["USER", "ADMIN"]}>
-      <>
-        <NavContainer>
-          <ListContainer>
-            <LogoContainer
-              src={Logo}
-              onClick={() =>
-                routeChange(`/${roles[0].toLowerCase()}/dashboard`)
-              }
-            />
-            <MyPageContainer>
-              <MyAppointmentsButton
-                onClick={() => routeChange("/appointments")}
-              >
-                My Appointments
-              </MyAppointmentsButton>
-            </MyPageContainer>
-            <LogOutContainer>
-              <Link to="/logout"></Link>
-              <Logout />
-            </LogOutContainer>
-          </ListContainer>
-        </NavContainer>
-      </>
-    </RequireAuth>
-  );
-};
-export default Navbar;
