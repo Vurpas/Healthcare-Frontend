@@ -1,6 +1,4 @@
-import { Link, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { Link } from "react-router-dom";
 import RequireAuth from "./RequireAuth";
 import React from "react";
 import Logout from "./Logout";
@@ -68,11 +66,11 @@ const Navbar = (props) => {
       <>
         <NavContainer>
           <ListContainer>
-            <Link to={`${role.toLowerCase()}/dashboard`}>
+            <Link to={`${role.toLowerCase()}/appointments`}>
               <LogoContainer src={Logo} />
             </Link>
             <MyPageContainer>
-              <MyPageLink to={`${role.toLowerCase()}/dashboard`}>
+              <MyPageLink to={`${role.toLowerCase()}/appointments`}>
                 My appointments
               </MyPageLink>
             </MyPageContainer>

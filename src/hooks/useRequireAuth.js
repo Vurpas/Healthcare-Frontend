@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 // i App allowed roles are specified
 export const useRequireAuth = (allowedRoles) => {
   const {
-    authState: { isAuthenticated, roles },
+    authState: { isAuthenticated, id, roles },
   } = useAuth();
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ export const useRequireAuth = (allowedRoles) => {
     ) {
       navigate("/unauthorized", { replace: true });
     }
-  }, [isAuthenticated, roles, allowedRoles, navigate]);
+  }, [isAuthenticated, id, roles, allowedRoles, navigate]);
 
-  return { isAuthenticated, roles };
+  return { isAuthenticated, id, roles };
 };
