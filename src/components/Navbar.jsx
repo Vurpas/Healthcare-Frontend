@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import RequireAuth from "./RequireAuth";
@@ -32,7 +32,7 @@ const LogoContainer = styled.img`
   height: 120px;
   cursor: pointer;
   border: none;
-  margin-left: 50px;
+  margin-left: 30px;
   font-family: "Roboto", sans-serif;
   text-decoration: none;
   &:hover {
@@ -50,7 +50,7 @@ const MyPageContainer = styled.p`
 const LogOutContainer = styled.p`
   display: flex;
   cursor: pointer;
-  margin-right: 80px;
+  margin-right: 60px;
 `;
 
 function MyPageLink({ to, children }) {
@@ -61,36 +61,29 @@ function MyPageLink({ to, children }) {
   );
 }
 
-function ifUser() {
-  if (allowedRoles === "USER") {
-    console.log(allowedRoles);
-    return <Link to="/user/dashboard">My appointments</Link>;
-  } else {
-    return <Link to="/admin/dashboard">My appointments</Link>;
-  }
-}
-
-const Navbar = () => {
+const Navbar = (props) => {
+  const role = props.role;
   return (
-    <>
-      <NavContainer>
-        <ListContainer>
-          <RequireAuth allowedRoles={["ADMIN", "USER"]}>
-            <Link to="/user/dashboard">
+    <RequireAuth allowedRoles={["ADMIN", "USER"]}>
+      <>
+        <NavContainer>
+          <ListContainer>
+            <Link to={`${role.toLowerCase()}/dashboard`}>
               <LogoContainer src={Logo} />
             </Link>
             <MyPageContainer>
-              {ifUser}
-              <MyPageLink to="/user/dashboard">My appointments</MyPageLink>
+              <MyPageLink to={`${role.toLowerCase()}/dashboard`}>
+                My appointments
+              </MyPageLink>
             </MyPageContainer>
             <LogOutContainer>
               <Link to="/logout"></Link>
               <Logout />
             </LogOutContainer>
-          </RequireAuth>
-        </ListContainer>
-      </NavContainer>
-    </>
+          </ListContainer>
+        </NavContainer>
+      </>
+    </RequireAuth>
   );
 };
 export default Navbar;

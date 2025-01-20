@@ -21,7 +21,6 @@ function App() {
       <GlobalStyle />
       <div className="content">
         <Router>
-          <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -31,6 +30,7 @@ function App() {
               path="/user/dashboard"
               element={
                 <RequireAuth allowedRoles={["USER"]}>
+                  <Navbar role="USER" />
                   <UserDashboard />
                 </RequireAuth>
               }
@@ -39,6 +39,7 @@ function App() {
               path="/admin/dashboard"
               element={
                 <RequireAuth allowedRoles={["ADMIN"]}>
+                  <Navbar role="ADMIN" />
                   <AdminDashboard />
                 </RequireAuth>
               }
