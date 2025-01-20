@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, parseISO } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import "../styles/Calendar.css";
 import { sv } from "date-fns/locale";
 
 const MainContainer = styled.div`
@@ -196,7 +197,7 @@ function UserManageCalendar() {
             style: {
               backgroundColor: "#057D7A",
               color: "white",
-              borderRadius: "8px",
+              //borderRadius: "8px",
               height: "100%",
               display: "flex",
               flexDirection: "column",
@@ -212,7 +213,7 @@ function UserManageCalendar() {
         style: {
           backgroundColor: "#76B3C8",
           color: "slate",
-          borderRadius: "8px",
+          //borderRadius: "8px",
           height: "100%",
           display: "flex",
           flexDirection: "column",
@@ -234,6 +235,11 @@ function UserManageCalendar() {
      * can be written here.
      * save new availabilities logic is saved in the bottom of the file
      */
+    const formats = {
+      eventTimeRangeFormat: () => {
+        return ",";
+      },
+    };
 
     //returning the calendar
     return (
@@ -242,9 +248,7 @@ function UserManageCalendar() {
           <Calendar
             localizer={localizer}
             events={availabilities}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 550 }}
+            style={{ height: 650 }}
             //set the default view to week
             defaultView="week"
             /* disables the agenda option by exluding it, since we dont need it,
@@ -295,9 +299,36 @@ function UserManageCalendar() {
             step={60}
             // this gives only one slot per hour
             timeslots={1}
+            dayLayoutAlgorithm="no-overlap"
             selectable={editMode}
             //onSelectSlot={handleSlotSelect}
             eventPropGetter={eventStyleGetter}
+            components={{
+              event: ({ event }) => (
+                <div
+                  style={{
+                    padding: "8px",
+                    borderRadius: "4px",
+                    backgroundColor: "#76B3C8",
+                    height: "100%",
+                    whiteSpace: "normal",
+                    wordWrap: "break-word",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <strong style={{ margin: "0", lineHeight: "1.2" }}>
+                    {event.title}
+                  </strong>
+                  <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
+                    {event.doctor}
+                  </p>
+                </div>
+              ),
+            }}
             onSelectEvent={handleEventSelect}
           />
         </CalendarWrapper>
