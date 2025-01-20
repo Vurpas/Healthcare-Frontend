@@ -191,7 +191,7 @@ function AdminManageCalendar() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "flex-start",
-              border: `2px solid ${"#5b8b99"}`,
+              border: `1px solid ${"#2F8EAF"}`,
             },
           };
         }
@@ -207,7 +207,7 @@ function AdminManageCalendar() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          border: "none",
+          border: `1px solid ${"#2F8EAF"}`,
         },
       };
     };
