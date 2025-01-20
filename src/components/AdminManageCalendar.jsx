@@ -145,6 +145,7 @@ function AdminManageCalendar() {
       };
 
       getAllAvailabilities();
+
       // api call ends
       // remount useEffect everytime editMode changes to make sure the calendar
       // data is up to date.
