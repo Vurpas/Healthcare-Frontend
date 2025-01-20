@@ -104,7 +104,7 @@ function UserManageCalendar() {
     const [editMode, setEditMode] = useState(false);
 
     // state to be able to choose to show availabilities and appointments or both
-    const [displayMode, setDisplayMode] = useState("stateOne");
+    const [displayMode, setDisplayMode] = useState("showAppointments");
 
     //state of slots selected in edit mode
     const [selectedSlots, setSelectedSlots] = useState([]);
@@ -297,9 +297,10 @@ function UserManageCalendar() {
 
     // eventsToShow provides the ability to toggle between rendered events
     const eventsToShow = (() => {
-      if (displayMode === "stateOne") return appointments;
-      if (displayMode === "stateTwo") return availabilities;
-      if (displayMode === "both") return [...appointments, ...availabilities];
+      if (displayMode === "showAppointments") return appointments;
+      if (displayMode === "showAvailabilities") return availabilities;
+      if (displayMode === "showBoth")
+        return [...appointments, ...availabilities];
       return [];
     })();
 
@@ -308,13 +309,15 @@ function UserManageCalendar() {
       <div>
         <CalendarWrapper>
           <div style={{ marginBottom: "1rem" }}>
-            <button onClick={() => setDisplayMode("stateOne")}>
+            <button onClick={() => setDisplayMode("showAppointments")}>
               My Appointments
             </button>
-            <button onClick={() => setDisplayMode("stateTwo")}>
+            <button onClick={() => setDisplayMode("showAvailabilities")}>
               Book new Appointment
             </button>
-            <button onClick={() => setDisplayMode("both")}>Combine</button>
+            <button onClick={() => setDisplayMode("showBothoth")}>
+              Combine
+            </button>
           </div>
           <Calendar
             localizer={localizer}
