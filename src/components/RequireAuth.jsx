@@ -20,12 +20,14 @@ function RequireAuth({ children, allowedRoles }) {
           isAuthenticated: true,
           user: response.data.username,
           roles: response.data.roles,
+          id: response.data.id,
         });
         setLoading(false);
       } catch (error) {
         setAuthState({
           isAuthenticated: false,
           user: null,
+          id: null,
           roles: [],
         });
         setLoading(false);
