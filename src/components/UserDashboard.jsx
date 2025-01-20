@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
+import "../styles/Button.css";
 
 // div with styles
 const UserContainer = styled.div`
@@ -31,9 +32,9 @@ const AppointmentsButton = styled.button`
   background-color: #057d7a;
   border-radius: 10px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 400;
   color: #fff;
-  margin-top: 40px;
+  margin-top: 30px;
   transition: background-color 0.3s ease, transform 0.2s ease,
     box-shadow 0.2s ease;
   text-align: center;
@@ -68,8 +69,9 @@ function UserDashboard() {
       <AppointmentsButton onClick={routeChange}>
         My appointments
       </AppointmentsButton>
-
-      <Logout />
+      <div className="LogOutContainer">
+        <Logout />
+      </div>
     </UserContainer>
     /*  
    Så här hade det sett ut utan styled components
