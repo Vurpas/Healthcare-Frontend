@@ -103,6 +103,9 @@ function UserManageCalendar() {
     // calendar state false = view, true = edit mode
     const [editMode, setEditMode] = useState(false);
 
+    // state to be able to choose to show availabilities and appointments or both
+    const [displayMode, setDisplayMode] = useState("stateOne");
+
     //state of slots selected in edit mode
     const [selectedSlots, setSelectedSlots] = useState([]);
 
@@ -204,15 +207,15 @@ function UserManageCalendar() {
             const end = new Date(start.getTime() + 60 * 60 * 1000);
 
             return {
+              Caregiver,
+              Patient,
+              title: `Appointment with ${Caregiver}`,
               start,
               end,
-              title: `Appointment with ${Caregiver}`,
               status,
               appointmentId,
               caregiverId,
               patientId,
-              Caregiver,
-              Patient,
             };
           });
 
@@ -224,14 +227,12 @@ function UserManageCalendar() {
 
       getAllAppointments();
       // api call ends
-      // remount useEffect everytime editMode changes to make sure the calendar
-      // data is up to date.
     }, []);
 
-    // Log appointments state whenever it updates
+    // log appointments state whenever it updates
     useEffect(() => {
       console.log("Appointments state updated:", appointments);
-    }, [appointments]); // Dependency ensures it logs on updates
+    }, [appointments]);
 
     // method to check what data each slot contains
     const handleEventSelect = (event) => {
@@ -294,19 +295,30 @@ function UserManageCalendar() {
       setEditMode((prevMode) => !prevMode);
     };
 
-    const formats = {
-      eventTimeRangeFormat: () => {
-        return ",";
-      },
-    };
+    // eventsToShow provides the ability to toggle between rendered events
+    const eventsToShow = (() => {
+      if (displayMode === "stateOne") return appointments;
+      if (displayMode === "stateTwo") return availabilities;
+      if (displayMode === "both") return [...appointments, ...availabilities];
+      return [];
+    })();
 
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
+          <div style={{ marginBottom: "1rem" }}>
+            <button onClick={() => setDisplayMode("stateOne")}>
+              My Appointments
+            </button>
+            <button onClick={() => setDisplayMode("stateTwo")}>
+              Book new Appointment
+            </button>
+            <button onClick={() => setDisplayMode("both")}>Combine</button>
+          </div>
           <Calendar
             localizer={localizer}
-            events={availabilities}
+            events={eventsToShow}
             style={{ height: 650 }}
             //set the default view to week
             defaultView="week"
@@ -410,8 +422,8 @@ function UserManageCalendar() {
   return (
     <MainContainer>
       <LogoContainer src={Logo} />
-      <Title>{user} Calendar</Title>
-      <Text>View Availability and Appointments</Text>
+      <Title>Patient Calendar</Title>
+      <Text>My Appointments and Available Appointments </Text>
       <CalendarContainer>
         <PatientCalendar />
       </CalendarContainer>
