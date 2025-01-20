@@ -170,6 +170,69 @@ function UserManageCalendar() {
      * is commented out at the bottom of this file.
      */
 
+    /** logic for selecting availability and convert it to a new appointment
+     * can be written here.
+     * save new availabilities logic is saved in the bottom of the file
+     */
+
+    //Get all appointments for logged in user
+
+    // Fetch appointments belonging to the logged in user.
+
+    useEffect(() => {
+      // api call
+      const getAllAppointments = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/appointment/getbyid?userId=` + id,
+            {
+              withCredentials: true,
+              // using withCredentials is crutial for and request that needs to check authorization!
+            }
+          );
+          const data = response.data;
+          const parseAppointmentData = data.map((appointment) => {
+            const {
+              caregiverId: { username: Caregiver, id: caregiverId },
+              patientId: { username: Patient, id: patientId },
+              dateTime,
+              status,
+              id: appointmentId,
+            } = appointment;
+
+            const start = new Date(dateTime);
+            const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+            return {
+              start,
+              end,
+              title: `Appointment with ${Caregiver}`,
+              status,
+              appointmentId,
+              caregiverId,
+              patientId,
+              Caregiver,
+              Patient,
+            };
+          });
+
+          setAppointments(parseAppointmentData);
+        } catch (error) {
+          console.error("Unavailable to fetch appointments:", error);
+        }
+      };
+
+      getAllAppointments();
+      // api call ends
+      // remount useEffect everytime editMode changes to make sure the calendar
+      // data is up to date.
+    }, []);
+
+    // Log appointments state whenever it updates
+    useEffect(() => {
+      console.log("Appointments state updated:", appointments);
+    }, [appointments]); // Dependency ensures it logs on updates
+
     // method to check what data each slot contains
     const handleEventSelect = (event) => {
       console.log("[EVENT CLICKED]", {
@@ -231,10 +294,6 @@ function UserManageCalendar() {
       setEditMode((prevMode) => !prevMode);
     };
 
-    /** logic for selecting availability and convert it to a new appointment
-     * can be written here.
-     * save new availabilities logic is saved in the bottom of the file
-     */
     const formats = {
       eventTimeRangeFormat: () => {
         return ",";
