@@ -1,4 +1,4 @@
-// import { format } from "date-fns";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const AppointmentsContainer = styled.div`
@@ -27,12 +27,18 @@ const Title = styled.p`
   font-weight: 700;
 `;
 
-function FetchAppointments({ dateTime }) {
+function FetchAppointments({ dateTime, username, id }) {
   return (
-    <AppointmentsContainer>
-      <Title> Möte </Title>
-      <p> {dateTime} </p>
-    </AppointmentsContainer>
+    <Link
+      style={{ textDecoration: "none", color: "black" }}
+      to={`/appointment/${id}`}
+    >
+      <AppointmentsContainer>
+        <Title> Möte </Title>
+        <p> {dateTime} </p>
+        <p> {username} </p>
+      </AppointmentsContainer>
+    </Link>
   );
 }
 

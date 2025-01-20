@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../assets/health_care_logo.svg";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import Logout from "./Logout";
 import FetchAppointments from "./FetchAppointments";
 
@@ -34,7 +34,34 @@ const BookingText = styled.p`
   font-weight: 800;
 `;
 
+const spin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2vh;
+  margin-top: 1%;
+`;
+
+const Loader = styled.div`
+  border: 10px solid white;
+  border-top: 10px solid #057d7a;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${spin} 1s linear infinite;
+`;
+
 function AdminDashboard() {
+  const [loading, setLoading] = useState(false);
   const [appointments, setAppointments] = useState([]);
 
   // get todays date
@@ -44,8 +71,6 @@ function AdminDashboard() {
 
   const dayMonth = `0${month}-${day}`;
   dayMonth.toString();
-
-  console.log(dayMonth);
 
   // using custom hook to check if the user is authenticated and has the correct role
   const {
@@ -62,6 +87,7 @@ function AdminDashboard() {
   // Fetch appointments belonging to the logged in user.
   useEffect(() => {
     const fetchAppointments = async () => {
+      setLoading(true);
       const res = await axios.get(
         `http://localhost:8080/appointment/getbyidanddate?userId=` +
           id +
@@ -69,11 +95,10 @@ function AdminDashboard() {
           dayMonth
       );
       setAppointments(res.data);
+      setLoading(false);
     };
     fetchAppointments();
   }, []);
-
-  console.log(appointments);
 
   return (
     <AdminContainer>
@@ -81,6 +106,7 @@ function AdminDashboard() {
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}!</Text>
       <BookingText>Today's appointments</BookingText>
+
       {/* ternary to check if appointments array is empty, in that case display "No appointments yet" to user */}
       {appointments && appointments.length > 0 ? (
         <div
@@ -94,11 +120,23 @@ function AdminDashboard() {
           }}
         >
           {appointments.map((a, i) => {
-            return <FetchAppointments key={i} dateTime={a.dateTime} />;
+            return (
+              <FetchAppointments
+                key={i}
+                dateTime={a.dateTime}
+                id={a.id}
+                username={a.patientId.username}
+              />
+            );
           })}
         </div>
       ) : (
-        <Text>No Appointments yet</Text>
+        <>
+          <LoadContainer>
+            <Loader></Loader>
+          </LoadContainer>
+          <Text>No appointments yet</Text>
+        </>
       )}
       <Logout />
     </AdminContainer>
