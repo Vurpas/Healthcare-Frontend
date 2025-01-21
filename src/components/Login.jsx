@@ -87,10 +87,12 @@ function Login() {
       );
 
       const { username, id, roles } = response.data;
+      const { username, id, roles } = response.data;
 
       setAuthState({
         isAuthenticated: true,
         user: username,
+        id: id,
         id: id,
         roles: roles,
         loading: false,
@@ -98,6 +100,7 @@ function Login() {
 
       console.log(response.data);
 
+      console.log("[RESPONSE]", response.data);
       // redirect based on role
       if (roles.includes("ADMIN")) {
         navigate("/admin/dashboard", { replace: true });

@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import Logout from "./Logout";
@@ -11,6 +10,25 @@ const AdminContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+`;
+
+const StyledButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const LogoContainer = styled.img`
@@ -64,16 +82,22 @@ const StyledButton = styled.button`
   }
 `;
 
+const availableSlots = [
+  "2025-03-17T09:00:00",
+  "2025-03-16T11:00:00",
+  "2025-03-15T13:00:00",
+];
+
 function AdminDashboard() {
   // using custom hook to check if the user is authenticated and has the correct role
   const {
-    authState: { user },
+    authState: { user, id },
   } = useAuth();
-  const [users, setUsers] = useState([]);
-
+  //const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  const routeChange = () => {
+  //ändra routing till page AvailabilityManager om detta fungerar
+  const goToCalendar = () => {
     navigate("/admin/availability");
   };
 
@@ -81,10 +105,8 @@ function AdminDashboard() {
     <AdminContainer>
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
-      <Text>Welcome, {user}!</Text>
-
-      <StyledButton onClick={routeChange}>Open Calendar</StyledButton>
-
+      <Text>Welcome, {user}</Text>
+      <StyledButton onClick={goToCalendar}>Go To Calendar</StyledButton>
       <Logout />
     </AdminContainer>
   );

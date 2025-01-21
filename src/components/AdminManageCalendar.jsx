@@ -129,7 +129,6 @@ function AdminManageCalendar() {
             }
           );
           const data = response.data;
-          console.log("[avalabilitydata]:", data);
           const parseAvailabilityData = data
 
             .map((availability) => {
@@ -167,7 +166,7 @@ function AdminManageCalendar() {
       const getAllAppointments = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:8080/appointment/all`,
+            `http://localhost:8080/appointment/getbyid?userId=` + id,
             {
               withCredentials: true,
               // using withCredentials is crutial for and request that needs to check authorization!
@@ -322,16 +321,15 @@ function AdminManageCalendar() {
     return (
       <div>
         <CalendarWrapper>
-          <div style={{ marginBottom: "1rem" }}>
-            {/*
+          {/*    <div style={{ marginBottom: "1rem" }}>
             <button onClick={() => setDisplayMode("showAppointments")}>
               My Appointments
             </button>
             <button onClick={() => setDisplayMode("showAvailabilities")}>
               My Availabilities
             </button>
-            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>*/}
-          </div>
+            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>
+          </div> */}
           <Calendar
             localizer={localizer}
             events={eventsToShow}

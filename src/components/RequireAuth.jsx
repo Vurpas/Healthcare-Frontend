@@ -18,6 +18,7 @@ function RequireAuth({ children, allowedRoles }) {
         });
         setAuthState({
           isAuthenticated: true,
+          id: response.data.id,
           user: response.data.username,
           roles: response.data.roles,
           id: response.data.id,
@@ -26,6 +27,7 @@ function RequireAuth({ children, allowedRoles }) {
       } catch (error) {
         setAuthState({
           isAuthenticated: false,
+          id: null,
           user: null,
           id: null,
           roles: [],
