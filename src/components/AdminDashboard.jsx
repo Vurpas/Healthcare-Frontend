@@ -40,6 +40,25 @@ const spin = keyframes`
   }
   100% {
     transform: rotate(360deg);
+
+const AppointmentsButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #fff;
+  margin-top: 40px;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+  text-align: center;
+  border: none;
+
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
 
@@ -133,7 +152,7 @@ function AdminDashboard() {
           <Text>No appointments yet</Text>
         </>
       )}
-      <Logout />
+        <Logout />
     </AdminContainer>
   );
 }

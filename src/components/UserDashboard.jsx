@@ -33,6 +33,20 @@ const BookingText = styled.p`
   font-weight: 800;
 `;
 
+const AppointmentsButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #fff;
+  margin-top: 30px;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+  text-align: center;
+  border: none;
+  
 const spin = keyframes`
   0% {
     transform: rotate(0deg);
@@ -90,6 +104,7 @@ function UserDashboard() {
       <Title>User Dashboard</Title>
       <Text>Welcome, {user}!</Text>
       <BookingText>My upcoming appointments</BookingText>
+
       {/* ternary to check if appointments array is empty, in that case display "No appointments yet" to user */}
       {appointments && appointments.length > 0 ? (
         <div

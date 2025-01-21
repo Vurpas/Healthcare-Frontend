@@ -15,6 +15,7 @@ import RequireAuth from "./components/RequireAuth";
 import GlobalStyle from "./styles/GlobalStyle";
 import MyAppointments from "./components/MyAppointments";
 import AppointmentDetails from "./components/AppointmentDetails";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <GlobalStyle />
       <div className="content">
         <Router>
+          <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
