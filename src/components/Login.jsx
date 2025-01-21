@@ -92,7 +92,6 @@ function Login() {
         isAuthenticated: true,
         user: username,
         id: id,
-        id: id,
         roles: roles,
         loading: false,
       });

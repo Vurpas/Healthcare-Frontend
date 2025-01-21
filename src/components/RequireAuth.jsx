@@ -21,7 +21,6 @@ function RequireAuth({ children, allowedRoles }) {
           id: response.data.id,
           user: response.data.username,
           roles: response.data.roles,
-          id: response.data.id,
         });
         setLoading(false);
       } catch (error) {
@@ -29,7 +28,6 @@ function RequireAuth({ children, allowedRoles }) {
           isAuthenticated: false,
           id: null,
           user: null,
-          id: null,
           roles: [],
         });
         setLoading(false);
