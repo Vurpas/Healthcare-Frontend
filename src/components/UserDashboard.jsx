@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../assets/health_care_logo.svg";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import Logout from "./Logout";
 import FetchAppointments from "./FetchAppointments";
 
@@ -13,6 +13,7 @@ const UserContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  margin-top: -5%;
 `;
 // img with styles
 const LogoContainer = styled.img`
@@ -30,6 +31,32 @@ const Text = styled.p`
 const BookingText = styled.p`
   font-size: 22px;
   font-weight: 800;
+`;
+
+const spin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2vh;
+  margin-top: 1%;
+`;
+
+const Loader = styled.div`
+  border: 10px solid white;
+  border-top: 10px solid #057d7a;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${spin} 1s linear infinite;
 `;
 
 function UserDashboard() {
@@ -76,11 +103,24 @@ function UserDashboard() {
           }}
         >
           {appointments.map((a, i) => {
-            return <FetchAppointments key={i} dateTime={a.dateTime} />;
+            return (
+              <FetchAppointments
+                key={i}
+                dateTime={a.dateTime}
+                id={a.id}
+                username={a.caregiverId.username}
+                status={a.status}
+              />
+            );
           })}
         </div>
       ) : (
-        <Text>No Appointments yet</Text>
+        <>
+          <LoadContainer>
+            <Loader></Loader>
+          </LoadContainer>
+          <Text>No appointments yet</Text>
+        </>
       )}
       <Logout />
     </UserContainer>

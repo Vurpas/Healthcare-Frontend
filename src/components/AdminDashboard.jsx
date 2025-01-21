@@ -78,12 +78,6 @@ function AdminDashboard() {
   } = useAuth();
   const [users, setUsers] = useState([]);
 
-  const navigate = useNavigate();
-
-  const routeChange = () => {
-    navigate("/appointments");
-  };
-
   // Fetch appointments belonging to the logged in user.
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -126,6 +120,7 @@ function AdminDashboard() {
                 dateTime={a.dateTime}
                 id={a.id}
                 username={a.patientId.username}
+                status={a.status}
               />
             );
           })}

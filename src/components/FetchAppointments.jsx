@@ -27,16 +27,18 @@ const Title = styled.p`
   font-weight: 700;
 `;
 
-function FetchAppointments({ dateTime, username, id }) {
+function FetchAppointments({ dateTime, username, id, status }) {
   return (
     <Link
       style={{ textDecoration: "none", color: "black" }}
       to={`/appointment/${id}`}
     >
       <AppointmentsContainer>
-        <Title> Möte </Title>
+        <Title> Appointment </Title>
         <p> {dateTime} </p>
-        <p> {username} </p>
+        <p> Meeting with:</p>
+        <Title>{username}</Title>
+        <p>Status: {status}</p>
       </AppointmentsContainer>
     </Link>
   );
