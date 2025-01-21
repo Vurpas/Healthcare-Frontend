@@ -216,39 +216,23 @@ function AdminManageCalendar() {
     // select slot logic
 
     const handleSlotSelect = ({ start, end }) => {
-      const correctStartTime = new Date(start.getTime() + 60 * 60 * 1000);
+      // create new slot
+      const newSlot = {
+        start,
+        end,
+        title: `New Availability`,
+      };
 
-      const isSlotSelected = selectedSlots.findIndex(
-        (slot) => slot.getTime() === correctStartTime.getTime()
-      );
+      //add selected slots to availabilities state to be visable in calendar
+      setAvailabilities((prev) => [...prev, newSlot]);
 
-      if (isSlotSelected !== -1) {
-        // if slot is already selected, remove it from both states
-        setSelectedSlots((prev) =>
-          prev.filter((_, index) => index !== existingSlotIndex)
-        );
-        setAvailabilities((prev) =>
-          prev.filter((slot) => slot.start.getTime() !== start.getTime())
-        );
-      } else {
-        //if slot is not selected create and add new slot
-        const newSlot = {
-          start,
-          end,
-          title: `New Availability`,
-        };
+      // levels out the time difference between data sent into mongoDB(-2hrs) and
+      // data beeing fetched wich is only +1hr so right time slot gets filled when
+      // fetched from backend.
+      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
 
-        // levels out the time difference between data sent into mongoDB(-2hrs) and
-        // data beeing fetched wich is only +1hr so right time slot gets filled when
-        // fetched from backend.
-        const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
-
-        //add selected slots to availabilities state to be visable in calendar
-        setAvailabilities((prev) => [...prev, newSlot]);
-
-        //add selected slots to the state that gets sent to backend
-        setSelectedSlots((prev) => [...prev, timeCorrection]);
-      }
+      //add selected slots to the state that gets sent to backend
+      setSelectedSlots((prev) => [...prev, timeCorrection]);
     };
 
     // custom styles for slots both in editMode and default
@@ -397,6 +381,32 @@ function AdminManageCalendar() {
             step={60}
             // this gives only one slot per hour
             timeslots={1}
+            components={{
+              event: ({ event }) => (
+                <div
+                  style={{
+                    padding: "8px",
+                    borderRadius: "4px",
+                    backgroundColor: "#76B3C8",
+                    height: "100%",
+                    whiteSpace: "normal",
+                    wordWrap: "break-word",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <strong style={{ margin: "0", lineHeight: "1.2" }}>
+                    {event.title}
+                  </strong>
+                  <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
+                    {event.patient}
+                  </p>
+                </div>
+              ),
+            }}
             selectable={editMode}
             onSelectSlot={handleSlotSelect}
             eventPropGetter={eventStyleGetter}
