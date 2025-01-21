@@ -176,7 +176,7 @@ function AdminManageCalendar() {
           const parseAppointmentData = data.map((appointment) => {
             const {
               caregiverId: { username: Caregiver, id: caregiverId },
-              patientId: { username: Patient, id: patientId },
+              patientId: { firstName: Patient, id: patientId },
               dateTime,
               status,
               id: appointmentId,
@@ -234,6 +234,11 @@ function AdminManageCalendar() {
       //add selected slots to the state that gets sent to backend
       setSelectedSlots((prev) => [...prev, timeCorrection]);
     };
+
+    // log appointments state whenever it updates
+    /*     useEffect(() => {
+      console.log("Appointments state updated:", appointments);
+    }, [appointments]); */
 
     // custom styles for slots both in editMode and default
     const eventStyleGetter = (event) => {
