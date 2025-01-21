@@ -215,6 +215,9 @@ function AdminManageCalendar() {
 
     // select slot logic
 
+    /**
+     * OBS! SELECTED SLOT NEEDS TO BE CLEARED IF USER TOGGLES OUT OF EDITMODE!! OBS
+     */
     const handleSlotSelect = ({ start, end }) => {
       // create new slot
       const newSlot = {
