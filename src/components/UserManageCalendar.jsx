@@ -103,17 +103,11 @@ function UserManageCalendar() {
     // calendar state false = view, true = edit mode
     const [editMode, setEditMode] = useState(false);
 
-    // state to be able to choose to show availabilities and appointments or both
-    const [displayMode, setDisplayMode] = useState("showBoth");
-
     //state of slots selected in edit mode
     const [selectedSlots, setSelectedSlots] = useState([]);
 
     // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
-
-    // existing appointments
-    const [appointments, setAppointments] = useState([]);
 
     // update this to accomodate fetching all existing availabilities
     useEffect(() => {
@@ -178,64 +172,8 @@ function UserManageCalendar() {
      * save new availabilities logic is saved in the bottom of the file
      */
 
-    //Get all appointments for logged in user
-
-    // Fetch appointments belonging to the logged in user.
-
-    useEffect(() => {
-      // api call
-      const getAllAppointments = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:8080/appointment/getbyid?userId=` + id,
-            {
-              withCredentials: true,
-              // using withCredentials is crutial for and request that needs to check authorization!
-            }
-          );
-          const data = response.data;
-          const parseAppointmentData = data.map((appointment) => {
-            const {
-              caregiverId: { username: Caregiver, id: caregiverId },
-              patientId: { username: Patient, id: patientId },
-              dateTime,
-              status,
-              id: appointmentId,
-            } = appointment;
-
-            const start = new Date(dateTime);
-            const end = new Date(start.getTime() + 60 * 60 * 1000);
-
-            return {
-              Caregiver,
-              Patient,
-              title: `Appointment with ${Caregiver}`,
-              start,
-              end,
-              status,
-              appointmentId,
-              caregiverId,
-              patientId,
-            };
-          });
-
-          setAppointments(parseAppointmentData);
-        } catch (error) {
-          console.error("Unavailable to fetch appointments:", error);
-        }
-      };
-
-      getAllAppointments();
-      // api call ends
-    }, []);
-
-    // log appointments state whenever it updates
-    useEffect(() => {
-      console.log("Appointments state updated:", appointments);
-    }, [appointments]);
-
     // method to check what data each slot contains
-    const handleEventSelect = (event) => {
+    /* const handleEventSelect = (event) => {
       console.log("[EVENT CLICKED]", {
         id: event.availabilityId,
         start: event.start,
@@ -244,7 +182,7 @@ function UserManageCalendar() {
         doctor: event.doctor,
         caregiverId: event.caregiverId,
       });
-    };
+    }; */
 
     // custom styles for slots both in editMode and default
 
@@ -295,20 +233,13 @@ function UserManageCalendar() {
       setEditMode((prevMode) => !prevMode);
     };
 
-    // eventsToShow provides the ability to toggle between rendered events
-    const eventsToShow = (() => {
-      if (displayMode === "showBoth")
-        return [...appointments, ...availabilities];
-      return [];
-    })();
-
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
           <Calendar
             localizer={localizer}
-            events={eventsToShow}
+            events={availabilities}
             style={{ height: 650 }}
             //set the default view to week
             defaultView="week"
@@ -467,3 +398,64 @@ export default UserManageCalendar;
         console.error("Error creating post:", error);
       }
     }; */
+
+//Get all appointments for logged in user
+
+// Fetch appointments belonging to the logged in user.
+
+/*     useEffect(() => {
+      // api call
+      const getAllAppointments = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/appointment/getbyid?userId=` + id,
+            {
+              withCredentials: true,
+              // using withCredentials is crutial for and request that needs to check authorization!
+            }
+          );
+          const data = response.data;
+          const parseAppointmentData = data.map((appointment) => {
+            const {
+              caregiverId: { username: Caregiver, id: caregiverId },
+              patientId: { username: Patient, id: patientId },
+              dateTime,
+              status,
+              id: appointmentId,
+            } = appointment;
+
+            const start = new Date(dateTime);
+            const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+            return {
+              Caregiver,
+              Patient,
+              title: `Appointment with ${Caregiver}`,
+              start,
+              end,
+              status,
+              appointmentId,
+              caregiverId,
+              patientId,
+            };
+          });
+
+          setAppointments(parseAppointmentData);
+        } catch (error) {
+          console.error("Unavailable to fetch appointments:", error);
+        }
+      };
+
+      getAllAppointments();
+      // api call ends
+    }, []); */
+
+// eventsToShow provides the ability to toggle between rendered events
+/*  const eventsToShow = (() => {
+      if (displayMode === "showBoth")
+        return [...appointments, ...availabilities];
+      return [];
+    })(); */
+
+// existing appointments
+//const [appointments, setAppointments] = useState([]);
