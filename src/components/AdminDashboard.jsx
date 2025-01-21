@@ -43,51 +43,6 @@ const Text = styled.p`
   font-size: 18px;
 `;
 
-const AppointmentsButton = styled.button`
-  cursor: pointer;
-  padding: 10px 30px;
-  background-color: #057d7a;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-  margin-top: 40px;
-  transition: background-color 0.3s ease, transform 0.2s ease,
-    box-shadow 0.2s ease;
-  text-align: center;
-  border: none;
-
-  &:hover {
-    background-color: #2fadaa;
-    transform: translateY(-3px);
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  }
-`;
-const StyledButton = styled.button`
-  cursor: pointer;
-  padding: 10px 30px;
-  background-color: #057d7a;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #fff;
-  transition: background-color 0.3s ease, transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    background-color: #2fadaa;
-    transform: translateY(-3px);
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  }
-`;
-
-const availableSlots = [
-  "2025-03-17T09:00:00",
-  "2025-03-16T11:00:00",
-  "2025-03-15T13:00:00",
-];
-
 function AdminDashboard() {
   // using custom hook to check if the user is authenticated and has the correct role
   const {

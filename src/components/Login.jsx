@@ -87,7 +87,6 @@ function Login() {
       );
 
       const { username, id, roles } = response.data;
-      const { username, id, roles } = response.data;
 
       setAuthState({
         isAuthenticated: true,
