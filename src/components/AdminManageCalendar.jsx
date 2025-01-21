@@ -129,6 +129,7 @@ function AdminManageCalendar() {
             }
           );
           const data = response.data;
+          console.log("[avalabilitydata]:", data);
           const parseAvailabilityData = data
 
             .map((availability) => {
@@ -166,7 +167,7 @@ function AdminManageCalendar() {
       const getAllAppointments = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:8080/appointment/getbyid?userId=` + id,
+            `http://localhost:8080/appointment/all`,
             {
               withCredentials: true,
               // using withCredentials is crutial for and request that needs to check authorization!
@@ -176,7 +177,7 @@ function AdminManageCalendar() {
           const parseAppointmentData = data.map((appointment) => {
             const {
               caregiverId: { username: Caregiver, id: caregiverId },
-              patientId: { firstname: Patient, id: patientId },
+              patientId: { firstName: Patient, id: patientId },
               dateTime,
               status,
               id: appointmentId,
@@ -321,15 +322,16 @@ function AdminManageCalendar() {
     return (
       <div>
         <CalendarWrapper>
-          {/*    <div style={{ marginBottom: "1rem" }}>
+          <div style={{ marginBottom: "1rem" }}>
+            {/*
             <button onClick={() => setDisplayMode("showAppointments")}>
               My Appointments
             </button>
             <button onClick={() => setDisplayMode("showAvailabilities")}>
               My Availabilities
             </button>
-            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>
-          </div> */}
+            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>*/}
+          </div>
           <Calendar
             localizer={localizer}
             events={eventsToShow}

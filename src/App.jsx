@@ -15,6 +15,7 @@ import RequireAuth from "./components/RequireAuth";
 import GlobalStyle from "./styles/GlobalStyle";
 import MyAppointments from "./components/MyAppointments";
 import UserManageCalendar from "./components/UserManageCalendar";
+import AdminManageCalendar from "./components/AdminManageCalendar";
 
 function App() {
   return (
@@ -55,6 +56,14 @@ function App() {
               element={
                 <RequireAuth allowedRoles={["ADMIN"]}>
                   <AdminDashboard />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/availability"
+              element={
+                <RequireAuth allowedRoles={["ADMIN"]}>
+                  <AdminManageCalendar />
                 </RequireAuth>
               }
             />

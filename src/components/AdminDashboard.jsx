@@ -45,6 +45,24 @@ const AppointmentsButton = styled.button`
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
+const StyledButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+`;
 
 function AdminDashboard() {
   // using custom hook to check if the user is authenticated and has the correct role
@@ -56,7 +74,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   const routeChange = () => {
-    navigate("/appointments");
+    navigate("/admin/availability");
   };
 
   return (
@@ -65,9 +83,7 @@ function AdminDashboard() {
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}!</Text>
 
-      <AppointmentsButton onClick={routeChange}>
-        My appointments
-      </AppointmentsButton>
+      <StyledButton onClick={routeChange}>Open Calendar</StyledButton>
 
       <Logout />
     </AdminContainer>
