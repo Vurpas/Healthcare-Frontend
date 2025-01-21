@@ -113,7 +113,7 @@ function AdminManageCalendar() {
     const [appointments, setAppointments] = useState([]);
 
     // state to be able to choose to show availabilities and appointments or both
-    const [displayMode, setDisplayMode] = useState("showAppointments");
+    const [displayMode, setDisplayMode] = useState("both");
 
     // retrieving all availabilities created by logged in user
     useEffect(() => {
@@ -209,29 +209,46 @@ function AdminManageCalendar() {
     }, []);
 
     // log appointments state whenever it updates
-    useEffect(() => {
+    /* useEffect(() => {
       console.log("Appointments state updated:", appointments);
-    }, [appointments]);
+    }, [appointments]); */
 
     // select slot logic
+
     const handleSlotSelect = ({ start, end }) => {
-      // create new slot
-      const newSlot = {
-        start,
-        end,
-        title: `New Availability`,
-      };
+      const correctStartTime = new Date(start.getTime() + 60 * 60 * 1000);
 
-      //add selected slots to availabilities state to be visable in calendar
-      setAvailabilities((prev) => [...prev, newSlot]);
+      const isSlotSelected = selectedSlots.findIndex(
+        (slot) => slot.getTime() === correctStartTime.getTime()
+      );
 
-      // levels out the time difference between data sent into mongoDB(-2hrs) and
-      // data beeing fetched wich is only +1hr so right time slot gets filled when
-      // fetched from backend.
-      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+      if (isSlotSelected !== -1) {
+        // if slot is already selected, remove it from both states
+        setSelectedSlots((prev) =>
+          prev.filter((_, index) => index !== existingSlotIndex)
+        );
+        setAvailabilities((prev) =>
+          prev.filter((slot) => slot.start.getTime() !== start.getTime())
+        );
+      } else {
+        //if slot is not selected create and add new slot
+        const newSlot = {
+          start,
+          end,
+          title: `New Availability`,
+        };
 
-      //add selected slots to the state that gets sent to backend
-      setSelectedSlots((prev) => [...prev, timeCorrection]);
+        // levels out the time difference between data sent into mongoDB(-2hrs) and
+        // data beeing fetched wich is only +1hr so right time slot gets filled when
+        // fetched from backend.
+        const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+
+        //add selected slots to availabilities state to be visable in calendar
+        setAvailabilities((prev) => [...prev, newSlot]);
+
+        //add selected slots to the state that gets sent to backend
+        setSelectedSlots((prev) => [...prev, timeCorrection]);
+      }
     };
 
     // custom styles for slots both in editMode and default
@@ -308,18 +325,14 @@ function AdminManageCalendar() {
 
     // eventsToShow provides the ability to toggle between rendered events
     const eventsToShow = (() => {
-      if (displayMode === "showAppointments") return appointments;
-      if (displayMode === "showAvailabilities") return availabilities;
-      if (displayMode === "showBoth")
-        return [...appointments, ...availabilities];
-      return [];
+      if (displayMode === "both") return [...appointments, ...availabilities];
     })();
 
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
-          <div style={{ marginBottom: "1rem" }}>
+          {/*    <div style={{ marginBottom: "1rem" }}>
             <button onClick={() => setDisplayMode("showAppointments")}>
               My Appointments
             </button>
@@ -327,7 +340,7 @@ function AdminManageCalendar() {
               My Availabilities
             </button>
             <button onClick={() => setDisplayMode("showBoth")}>Combine</button>
-          </div>
+          </div> */}
           <Calendar
             localizer={localizer}
             events={eventsToShow}
