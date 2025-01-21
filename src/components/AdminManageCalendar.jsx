@@ -11,7 +11,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "../styles/Calendar.css";
 import { sv } from "date-fns/locale";
 
-const MainContainer = styled.div`
+const AvailabilityContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,7 +89,7 @@ const localizer = dateFnsLocalizer({
 // get todays date dynamically to use in the calendar
 const today = new Date();
 
-function UserManageCalendar() {
+function AdminManageCalendar() {
   // main scope
 
   // retrieving logged in user and id
@@ -97,7 +97,7 @@ function UserManageCalendar() {
     authState: { user, id },
   } = useAuth();
 
-  const PatientCalendar = () => {
+  const CaregiverCalendar = () => {
     // calendar start
 
     // calendar state false = view, true = edit mode
@@ -109,14 +109,19 @@ function UserManageCalendar() {
     // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
 
-    // update this to accomodate fetching all existing availabilities
+    // existing appointments
+    const [appointments, setAppointments] = useState([]);
+
+    // state to be able to choose to show availabilities and appointments or both
+    const [displayMode, setDisplayMode] = useState("both");
+
+    // retrieving all availabilities created by logged in user
     useEffect(() => {
       // api call
       const getAllAvailabilities = async () => {
         try {
           const response = await axios.get(
-            //change this endpoint when implemented
-            `http://localhost:8080/availability/all`,
+            `http://localhost:8080/availability/${id}`,
 
             {
               withCredentials: true,
@@ -127,10 +132,6 @@ function UserManageCalendar() {
           const parseAvailabilityData = data
 
             .map((availability) => {
-              // get caregiverId and username (maybe firstname instead??) from the response
-              const { caregiverId } = availability;
-              const username = caregiverId.username;
-
               return availability.availableSlots.map((slot) => {
                 const start = new Date(slot);
                 // controls the end time of each slot
@@ -140,9 +141,7 @@ function UserManageCalendar() {
                   start,
                   end,
                   title: "Available",
-                  doctor: username,
                   availabilityId: availability.id,
-                  caregiverId: caregiverId.id,
                 };
               });
             })
@@ -154,38 +153,94 @@ function UserManageCalendar() {
       };
 
       getAllAvailabilities();
+
       // api call ends
       // remount useEffect everytime editMode changes to make sure the calendar
       // data is up to date.
     }, [editMode]);
 
-    //console.log("[availabilities]:", availabilities);
+    // Fetch appointments belonging to the logged in caregiver.
 
-    /** Selected slot logic scan be written here!
-     *
-     * old logic from set availability when user is ADMIN
-     * is commented out at the bottom of this file.
-     */
+    useEffect(() => {
+      // api call
+      const getAllAppointments = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/appointment/getbyid?userId=` + id,
+            {
+              withCredentials: true,
+              // using withCredentials is crutial for and request that needs to check authorization!
+            }
+          );
+          const data = response.data;
+          const parseAppointmentData = data.map((appointment) => {
+            const {
+              caregiverId: { username: Caregiver, id: caregiverId },
+              patientId: { firstname: Patient, id: patientId },
+              dateTime,
+              status,
+              id: appointmentId,
+            } = appointment;
 
-    /** logic for selecting availability and convert it to a new appointment
-     * can be written here.
-     * save new availabilities logic is saved in the bottom of the file
-     */
+            const start = new Date(dateTime);
+            const end = new Date(start.getTime() + 60 * 60 * 1000);
 
-    // method to check what data each slot contains
-    /* const handleEventSelect = (event) => {
-      console.log("[EVENT CLICKED]", {
-        id: event.availabilityId,
-        start: event.start,
-        end: event.end,
-        title: event.title,
-        doctor: event.doctor,
-        caregiverId: event.caregiverId,
-      });
-    }; */
+            return {
+              Caregiver,
+              Patient,
+              title: `Appointment with ${Patient}`,
+              start,
+              end,
+              status,
+              appointmentId,
+              caregiverId,
+              patientId,
+            };
+          });
+
+          setAppointments(parseAppointmentData);
+        } catch (error) {
+          console.error("Unavailable to fetch appointments:", error);
+        }
+      };
+
+      getAllAppointments();
+      // api call ends
+    }, []);
+
+    // log appointments state whenever it updates
+    /* useEffect(() => {
+      console.log("Appointments state updated:", appointments);
+    }, [appointments]); */
+
+    // select slot logic
+
+    const handleSlotSelect = ({ start, end }) => {
+      // create new slot
+      const newSlot = {
+        start,
+        end,
+        title: `New Availability`,
+      };
+
+      //add selected slots to availabilities state to be visable in calendar
+      setAvailabilities((prev) => [...prev, newSlot]);
+
+      // levels out the time difference between data sent into mongoDB(-2hrs) and
+      // data beeing fetched wich is only +1hr so right time slot gets filled when
+      // fetched from backend.
+      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+
+      //add selected slots to the state that gets sent to backend
+      setSelectedSlots((prev) => [...prev, timeCorrection]);
+    };
+
+    // log appointments state whenever it updates
+    /*     useEffect(() => {
+      console.log("Appointments state updated:", appointments);
+    }, [appointments]); */
 
     // custom styles for slots both in editMode and default
-
     const eventStyleGetter = (event) => {
       // Loop through selected slots and check if the event's start time is one of the selected slots
       if (editMode) {
@@ -199,7 +254,7 @@ function UserManageCalendar() {
             style: {
               backgroundColor: "#057D7A",
               color: "white",
-              //borderRadius: "8px",
+              borderRadius: "8px",
               height: "100%",
               display: "flex",
               flexDirection: "column",
@@ -215,7 +270,7 @@ function UserManageCalendar() {
         style: {
           backgroundColor: "#76B3C8",
           color: "slate",
-          //borderRadius: "8px",
+          borderRadius: "8px",
           height: "100%",
           display: "flex",
           flexDirection: "column",
@@ -226,21 +281,61 @@ function UserManageCalendar() {
       };
     };
 
-    //console.log("[SELECTEDSLOTS]:", selectedSlots);
+    console.log("[SELECTEDSLOTS]:", selectedSlots);
 
     // calback function to toggle the state of editMode when called ()
     const handleToggleEditMode = () => {
       setEditMode((prevMode) => !prevMode);
     };
 
+    //save selected slots to backend logic
+    const handleSaveAvailabilitySlots = async () => {
+      if (selectedSlots.length === 0) {
+        alert("You have no slots selected!");
+        return;
+      }
+      const data = {
+        caregiverId: id,
+        availableSlots: selectedSlots,
+      };
+
+      try {
+        await axios.post(`http://localhost:8080/availability`, data, {
+          withCredentials: true,
+        });
+        alert("Changes are now saved");
+        // untoggles editmode when saved
+        setEditMode(false);
+        setSelectedSlots([]);
+      } catch (error) {
+        console.error("Error creating post:", error);
+      }
+    };
+
+    // eventsToShow provides the ability to toggle between rendered events
+    const eventsToShow = (() => {
+      if (displayMode === "both") return [...appointments, ...availabilities];
+    })();
+
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
+          {/*    <div style={{ marginBottom: "1rem" }}>
+            <button onClick={() => setDisplayMode("showAppointments")}>
+              My Appointments
+            </button>
+            <button onClick={() => setDisplayMode("showAvailabilities")}>
+              My Availabilities
+            </button>
+            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>
+          </div> */}
           <Calendar
             localizer={localizer}
-            events={availabilities}
-            style={{ height: 650 }}
+            events={eventsToShow}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 550 }}
             //set the default view to week
             defaultView="week"
             /* disables the agenda option by exluding it, since we dont need it,
@@ -291,10 +386,6 @@ function UserManageCalendar() {
             step={60}
             // this gives only one slot per hour
             timeslots={1}
-            dayLayoutAlgorithm="no-overlap"
-            selectable={editMode}
-            //onSelectSlot={handleSlotSelect}
-            eventPropGetter={eventStyleGetter}
             components={{
               event: ({ event }) => (
                 <div
@@ -316,11 +407,14 @@ function UserManageCalendar() {
                     {event.title}
                   </strong>
                   <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
-                    {event.doctor}
+                    {event.patient}
                   </p>
                 </div>
               ),
             }}
+            selectable={editMode}
+            onSelectSlot={handleSlotSelect}
+            eventPropGetter={eventStyleGetter}
             //onSelectEvent={handleEventSelect}
           />
         </CalendarWrapper>
@@ -339,123 +433,18 @@ function UserManageCalendar() {
     //calendar scope ends
   };
 
-  // the main return that renders the entire component including the calendar
   return (
-    <MainContainer>
+    <AvailabilityContainer>
       <LogoContainer src={Logo} />
-      <Title>Patient Calendar</Title>
-      <Text>My Appointments and Available Appointments </Text>
+      <Title>{user} Schedule Dashboard</Title>
+      <Text>Availability and Appointments</Text>
       <CalendarContainer>
-        <PatientCalendar />
+        <CaregiverCalendar />
       </CalendarContainer>
-    </MainContainer>
+    </AvailabilityContainer>
   );
 
   // main scope ends
 }
 
-export default UserManageCalendar;
-
-/*  const handleSlotSelect = ({ start, end }) => {
-      // create new slot
-      const newSlot = {
-        start,
-        end,
-        title: `New Availability`,
-      };
-
-      //add selected slots to availabilities state to be visable in calendar
-      setAvailabilities((prev) => [...prev, newSlot]);
-
-      // levels out the time difference between data sent into mongoDB(-2hrs) and
-      // data beeing fetched wich is only +1hr so right time slot gets filled when
-      // fetched from backend.
-      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
-
-      //add selected slots to the state that gets sent to backend
-      setSelectedSlots((prev) => [...prev, timeCorrection]);
-    }; */
-
-/* const handleSaveAvailabilitySlots = async () => {
-      if (selectedSlots.length === 0) {
-        alert("You have no slots selected!");
-        return;
-      }
-      const data = {
-        caregiverId: id,
-        availableSlots: selectedSlots,
-      };
-
-      try {
-        await axios.post(`http://localhost:8080/availability`, data, {
-          withCredentials: true,
-        });
-        alert("Changes are now saved");
-        // untoggles editmode when saved
-        setEditMode(false);
-        setSelectedSlots([]);
-      } catch (error) {
-        console.error("Error creating post:", error);
-      }
-    }; */
-
-//Get all appointments for logged in user
-
-// Fetch appointments belonging to the logged in user.
-
-/*     useEffect(() => {
-      // api call
-      const getAllAppointments = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:8080/appointment/getbyid?userId=` + id,
-            {
-              withCredentials: true,
-              // using withCredentials is crutial for and request that needs to check authorization!
-            }
-          );
-          const data = response.data;
-          const parseAppointmentData = data.map((appointment) => {
-            const {
-              caregiverId: { username: Caregiver, id: caregiverId },
-              patientId: { username: Patient, id: patientId },
-              dateTime,
-              status,
-              id: appointmentId,
-            } = appointment;
-
-            const start = new Date(dateTime);
-            const end = new Date(start.getTime() + 60 * 60 * 1000);
-
-            return {
-              Caregiver,
-              Patient,
-              title: `Appointment with ${Caregiver}`,
-              start,
-              end,
-              status,
-              appointmentId,
-              caregiverId,
-              patientId,
-            };
-          });
-
-          setAppointments(parseAppointmentData);
-        } catch (error) {
-          console.error("Unavailable to fetch appointments:", error);
-        }
-      };
-
-      getAllAppointments();
-      // api call ends
-    }, []); */
-
-// eventsToShow provides the ability to toggle between rendered events
-/*  const eventsToShow = (() => {
-      if (displayMode === "showBoth")
-        return [...appointments, ...availabilities];
-      return [];
-    })(); */
-
-// existing appointments
-//const [appointments, setAppointments] = useState([]);
+export default AdminManageCalendar;
