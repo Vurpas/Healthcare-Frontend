@@ -28,6 +28,25 @@ const Text = styled.p`
   font-size: 18px;
 `;
 
+const StyledButton = styled.button`
+  cursor: pointer;
+  padding: 10px 30px;
+  background-color: #057d7a;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    background-color: #2fadaa;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+`;
+
 const BookingText = styled.p`
   font-size: 22px;
   font-weight: 800;
@@ -84,6 +103,10 @@ function UserDashboard() {
 
   const navigate = useNavigate();
 
+  const goToCalendar = () => {
+    navigate("/user/calendar");
+  };
+
   const routeChange = () => {
     navigate("/appointments");
   };
@@ -105,6 +128,11 @@ function UserDashboard() {
       <Title>User Dashboard</Title>
       <Text>Welcome, {user}!</Text>
       <BookingText>My upcoming appointments</BookingText>
+
+      <AppointmentsButton onClick={routeChange}>
+        My appointments
+      </AppointmentsButton>
+      <StyledButton onClick={goToCalendar}>Go To Calendar</StyledButton>
 
       {/* ternary to check if appointments array is empty, in that case display "No appointments yet" to user */}
       {appointments && appointments.length > 0 ? (

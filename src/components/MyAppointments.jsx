@@ -24,6 +24,7 @@ function MyAppointments() {
       );
       setAppointments(res.data);
     };
+
     fetchAppointments();
   }, []);
 

@@ -98,6 +98,7 @@ function Login() {
 
       console.log(response.data);
 
+      console.log("[RESPONSE]", response.data);
       // redirect based on role
       if (roles.includes("ADMIN")) {
         navigate("/admin/dashboard", { replace: true });

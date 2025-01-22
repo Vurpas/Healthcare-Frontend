@@ -18,16 +18,16 @@ function RequireAuth({ children, allowedRoles }) {
         });
         setAuthState({
           isAuthenticated: true,
+          id: response.data.id,
           user: response.data.username,
           roles: response.data.roles,
-          id: response.data.id,
         });
         setLoading(false);
       } catch (error) {
         setAuthState({
           isAuthenticated: false,
-          user: null,
           id: null,
+          user: null,
           roles: [],
         });
         setLoading(false);
