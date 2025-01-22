@@ -145,7 +145,7 @@ function AdminDashboard() {
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}</Text>
-      <StyledButton onClick={goToCalendar}>Go To Calendar</StyledButton>
+      <StyledButton onClick={goToCalendar}>Appointment calendar</StyledButton>
       <BookingText>Today's appointments</BookingText>
 
       {/* ternary to check if appointments array is empty, in that case display "No appointments yet" to user */}

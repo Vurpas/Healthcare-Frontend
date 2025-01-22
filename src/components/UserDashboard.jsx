@@ -127,12 +127,8 @@ function UserDashboard() {
       <LogoContainer src={Logo} />
       <Title>User Dashboard</Title>
       <Text>Welcome, {user}!</Text>
+      <StyledButton onClick={goToCalendar}>Book appointment</StyledButton>
       <BookingText>My upcoming appointments</BookingText>
-
-      <AppointmentsButton onClick={routeChange}>
-        My appointments
-      </AppointmentsButton>
-      <StyledButton onClick={goToCalendar}>Go To Calendar</StyledButton>
 
       {/* ternary to check if appointments array is empty, in that case display "No appointments yet" to user */}
       {appointments && appointments.length > 0 ? (

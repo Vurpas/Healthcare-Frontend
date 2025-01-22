@@ -9,7 +9,7 @@ import RequireAuth from "./RequireAuth";
 
 const Navbar = () => {
   const {
-    authState: { roles },
+    authState: { user, roles },
   } = useAuth();
 
   const navigate = useNavigate();
@@ -29,11 +29,13 @@ const Navbar = () => {
               }
             />
             <MyPageContainer>
-              <MyAppointmentsButton
-                onClick={() => routeChange("/appointments")}
-              >
-                My Appointments
-              </MyAppointmentsButton>
+              {user && (
+                <MyAppointmentsButton
+                  onClick={() => routeChange("/appointments")}
+                >
+                  My Appointments
+                </MyAppointmentsButton>
+              )}
             </MyPageContainer>
             <LogOutContainer>
               <Link to="/logout"></Link>
