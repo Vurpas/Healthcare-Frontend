@@ -119,6 +119,8 @@ function AdminManageCalendar() {
     const [upcomingAppointments, setUpcomingAppointments] = useState([]);
     const [oldAppointments, setOldAppointments] = useState([]);
 
+    const [deleteAvailability, setDeleteAvailability] = useState("");
+
     // retrieving all availabilities created by logged in user
     useEffect(() => {
       // api call
@@ -238,7 +240,7 @@ function AdminManageCalendar() {
       sortAppointments();
     }, [appointments]);
 
-    // select slot logic
+    // select slot logic for adding new availabilities
     const addNewAvailability = ({ start, end }) => {
       if (editMode) {
         const slotExists = availabilities.some(
@@ -284,6 +286,16 @@ function AdminManageCalendar() {
       if (editMode && event.type === "availability") {
         // if the event is of type availability then it gets removed from selected slots
         // and availabilities so it dissapears from the calendar.
+        const selectedSlot = new Date(event.start.getTime() + 60 * 60 * 1000);
+        console.log("DELETE SELECTED SLOT", selectedSlot);
+        const confirmDelete = window.confirm(
+          "Do you want to delete this availability??"
+        );
+        if (!confirmDelete) {
+          return;
+        }
+
+        deleteAvailabilitySlot();
         setAvailabilities((prev) =>
           prev.filter(
             (slot) =>
@@ -294,13 +306,7 @@ function AdminManageCalendar() {
           )
         );
 
-        setSelectedSlots((prev) =>
-          prev.filter(
-            (slot) =>
-              slot.getTime() !==
-              new Date(event.start.getTime() + 60 * 60 * 1000).getTime()
-          )
-        );
+        setDeleteAvailability(selectedSlot);
       }
       if (editMode && event.type === "appointments") {
         // insert functionallity to set appointments status to canceled
@@ -339,6 +345,29 @@ function AdminManageCalendar() {
         setSelectedSlots([]);
       } catch (error) {
         console.error("Error creating post:", error);
+      }
+    };
+
+    // delete timeslot logic
+    const deleteAvailabilitySlot = async () => {
+      const data = {
+        caregiverId: id,
+        selectedSlot: deleteAvailability,
+      };
+
+      try {
+        await axios.delete(
+          `http://localhost:8080/availability/removetimeslot`,
+          data,
+          {
+            withCredentials: true,
+          }
+        );
+        alert("Changes are now saved");
+        // untoggles editmode when deleted
+        setEditMode(false);
+      } catch (error) {
+        console.error("Error deleting slot:", error);
       }
     };
 
