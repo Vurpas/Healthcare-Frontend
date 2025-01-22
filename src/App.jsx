@@ -16,6 +16,8 @@ import GlobalStyle from "./styles/GlobalStyle";
 import MyAppointments from "./components/MyAppointments";
 import UserManageCalendar from "./components/UserManageCalendar";
 import AdminManageCalendar from "./components/AdminManageCalendar";
+import AppointmentDetails from "./components/AppointmentDetails";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
@@ -23,10 +25,19 @@ function App() {
       <GlobalStyle />
       <div className="content">
         <Router>
+          <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route
+              path="/appointment/:id"
+              element={
+                <RequireAuth allowedRoles={["USER", "ADMIN"]}>
+                  <AppointmentDetails />
+                </RequireAuth>
+              }
+            />
             <Route
               path="/appointments"
               element={
