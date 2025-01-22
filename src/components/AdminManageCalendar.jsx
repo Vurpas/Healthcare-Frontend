@@ -240,42 +240,48 @@ function AdminManageCalendar() {
 
     // select slot logic
     const addNewAvailability = ({ start, end }) => {
-      const slotExists = availabilities.some(
-        (slot) =>
-          slot.start.getTime() === start.getTime() &&
-          slot.end.getTime() === end.getTime()
-      );
+      if (editMode) {
+        const slotExists = availabilities.some(
+          (slot) =>
+            slot.start.getTime() === start.getTime() &&
+            slot.end.getTime() === end.getTime()
+        );
 
-      // create new slot
-      console.log("Slot does not exist. Adding...");
-      const newSlot = {
-        start,
-        end,
-        title: "New Availability",
-        type: "availability",
-      };
+        // create new slot
 
-      //add selected slots to availabilities state to be visable in calendar
-      setAvailabilities((prev) => [...prev, newSlot]);
+        const newSlot = {
+          start,
+          end,
+          title: "New Availability",
+          type: "availability",
+        };
 
-      // levels out the time difference between data sent into mongoDB(-2hrs) and
-      // data beeing fetched wich is only +1hr so right time slot gets filled when
-      // fetched from backend.
-      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+        //add selected slots to availabilities state to be visable in calendar
+        setAvailabilities((prev) => [...prev, newSlot]);
 
-      //add selected slots to the state that gets sent to backend
-      setSelectedSlots((prev) => [...prev, timeCorrection]);
+        // levels out the time difference between data sent into mongoDB(-2hrs) and
+        // data beeing fetched wich is only +1hr so right time slot gets filled when
+        // fetched from backend.
+        const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+
+        //add selected slots to the state that gets sent to backend
+        setSelectedSlots((prev) => [...prev, timeCorrection]);
+      }
+      if (!editMode) {
+        alert("To add availability go to Edit Calendar");
+      }
     };
 
     // log appointments state whenever it updates
     useEffect(() => {
       console.log("Appointments state updated:", appointments);
-      console.log("[Old appointments]:", oldAppointments);
-      console.log("[Upcoming appointments]:", upcomingAppointments);
-    }, [appointments]);
+      console.log("[selected slots]:", selectedSlots);
+    }, [selectedSlots]);
 
     const handleSelectdSlots = (event) => {
-      if (event.type === "availability") {
+      // only allows changes inside editMode
+
+      if (editMode && event.type === "availability") {
         // if the event is of type availability then it gets removed from selected slots
         // and availabilities so it dissapears from the calendar.
         setAvailabilities((prev) =>
@@ -295,11 +301,15 @@ function AdminManageCalendar() {
               new Date(event.start.getTime() + 60 * 60 * 1000).getTime()
           )
         );
-      } else if (event.type === "appointments") {
+      }
+      if (editMode && event.type === "appointments") {
         // insert functionallity to set appointments status to canceled
 
         console.log("Appointment event clicked:", event);
         // Add your logic for 'other' event types here
+      }
+      if (!editMode) {
+        alert("OOPS!! to edit go to Edit Calendar!");
       }
     };
 
