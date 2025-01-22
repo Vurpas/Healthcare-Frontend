@@ -14,6 +14,7 @@ import Home from "./components/Home";
 import RequireAuth from "./components/RequireAuth";
 import GlobalStyle from "./styles/GlobalStyle";
 import MyAppointments from "./components/MyAppointments";
+import AppointmentDetails from "./components/AppointmentDetails";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -27,6 +28,14 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route
+              path="/appointment/:id"
+              element={
+                <RequireAuth allowedRoles={["USER", "ADMIN"]}>
+                  <AppointmentDetails />
+                </RequireAuth>
+              }
+            />
             <Route
               path="/appointments"
               element={
