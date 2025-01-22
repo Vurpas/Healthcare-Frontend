@@ -354,6 +354,7 @@ function AdminManageCalendar() {
         caregiverId: id,
         selectedSlot: deleteAvailability,
       };
+      console.log("DELETION DATA:", data);
 
       try {
         await axios.delete(
