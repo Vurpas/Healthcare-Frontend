@@ -126,7 +126,7 @@ function AdminDashboard() {
           style={{
             display: "grid",
             justifyContent: "center",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: "5px",
             justifyItems: "center",
             maxWidth: "50%",
