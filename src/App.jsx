@@ -78,7 +78,7 @@ function App() {
                 </RequireAuth>
               }
             />
-
+            <Route path="/" element={<Home />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
