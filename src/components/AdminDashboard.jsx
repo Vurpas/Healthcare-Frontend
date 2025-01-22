@@ -39,7 +39,7 @@ const spin = keyframes`
     transform: rotate(0deg);
   }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(360deg);`;
 
 const AppointmentsButton = styled.button`
   cursor: pointer;
@@ -152,7 +152,7 @@ function AdminDashboard() {
           <Text>No appointments yet</Text>
         </>
       )}
-        <Logout />
+      <Logout />
     </AdminContainer>
   );
 }

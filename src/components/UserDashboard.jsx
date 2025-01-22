@@ -46,14 +46,15 @@ const AppointmentsButton = styled.button`
     box-shadow 0.2s ease;
   text-align: center;
   border: none;
-  
+`;
+
 const spin = keyframes`
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
-  }
+  } 
 `;
 
 const LoadContainer = styled.div`
