@@ -399,49 +399,6 @@ function AdminManageCalendar() {
       if (displayMode === "past") return [...oldAppointments];
     })();
 
-    // custom styles for slots both in editMode and default
-    const eventStyleGetter = (event) => {
-      // Loop through selected slots and check if the event's start time is one of the selected slots
-      if (editMode) {
-        const matchingSlot = selectedSlots.find(
-          (slot) => slot.getTime() === event.start.getTime() //+ 60 * 60 * 1000 // Correct the event's time by subtracting 1 hour
-        );
-
-        if (matchingSlot) {
-          return {
-            // style for selected slots in editMode
-            style: {
-              backgroundColor: "#057D7A",
-              color: "white",
-              borderRadius: "8px",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              border: `1px solid ${"#2F8EAF"}`,
-            },
-          };
-        }
-      }
-      // Default style for other events (non-selected)
-      return {
-        /* style: {
-          backgroundColor: "#76B3C8",
-          color: "slate",
-          borderRadius: "8px",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          border: `1px solid ${"#2F8EAF"}`,
-        }, */
-      };
-    };
-
-    //console.log("[SELECTEDSLOTS]:", selectedSlots);
-
     //returning the calendar
     return (
       <div>
@@ -517,11 +474,15 @@ function AdminManageCalendar() {
             components={{
               event: ({ event }) => {
                 const isAvailability = event.type === "availability";
-
+                const newAvailability = event.title === "New Availability";
                 const eventStyle = {
                   padding: "8px",
                   borderRadius: "6px",
-                  backgroundColor: isAvailability ? "#76B3C8" : "#057D7A",
+                  backgroundColor: newAvailability
+                    ? "#46a76a"
+                    : isAvailability
+                    ? "#76B3C8"
+                    : "#408180",
                   color: isAvailability ? "#FFFFFF" : "#FFFFFF",
                   height: "100%",
                   whiteSpace: "normal",
@@ -544,34 +505,10 @@ function AdminManageCalendar() {
                   </div>
                 );
               },
-              /* event: ({ event }) => (
-                <div
-                  style={{
-                    padding: "8px",
-                    borderRadius: "4px",
-                    backgroundColor: "#76B3C8",
-                    height: "100%",
-                    whiteSpace: "normal",
-                    wordWrap: "break-word",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                  }}
-                >
-                  <strong style={{ margin: "0", lineHeight: "1.2" }}>
-                    {event.title}
-                  </strong>
-                  <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
-                    {event.doctor}
-                  </p>
-                </div>
-              ), */
             }}
             selectable={editMode}
             onSelectSlot={addNewAvailability}
-            eventPropGetter={eventStyleGetter}
+            //eventPropGetter={eventStyleGetter}
             onSelectEvent={handleSelectedSlots}
           />
         </CalendarWrapper>
