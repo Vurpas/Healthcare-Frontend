@@ -152,6 +152,7 @@ function AdminManageCalendar() {
               });
             })
             .flat();
+
           setAvailabilities(parseAvailabilityData);
         } catch (error) {
           console.error("Unavailable to fetch availabilities:", error);
@@ -161,10 +162,10 @@ function AdminManageCalendar() {
       getAllAvailabilities();
 
       // api call ends
+
       // remount useEffect everytime editMode changes to make sure the calendar
       // data is up to date.
     }, [editMode]);
-
     // Fetch appointments belonging to the logged in caregiver.
 
     useEffect(() => {
@@ -273,11 +274,11 @@ function AdminManageCalendar() {
     };
 
     // log appointments state whenever it updates
-    useEffect(() => {
-      console.log("Availabilities:", availabilities);
-      /*  console.log("Appointments state updated:", appointments);
-      console.log("[selected slots]:", selectedSlots); */
-    }, [selectedSlots]);
+    /*    useEffect(() => {
+      
+     console.log("Appointments state updated:", appointments);
+      console.log("[selected slots]:", selectedSlots);
+    }, [selectedSlots]); */
 
     const handleSelectdSlots = (event) => {
       // only allows changes inside editMode
@@ -286,11 +287,11 @@ function AdminManageCalendar() {
         // if the event is of type availability then it gets removed from selected slots
         // and availabilities so it dissapears from the calendar.
         //alert("This slot is already available!");
-        const slotId = event.availabilityId;
-        console.log("ID:", slotId);
+        //const slotId = event.availabilityId;
+        //console.log("ID:", slotId);
 
-        deleteAvailabilitySlot(slotId);
-        setAvailabilities((prev) =>
+        // deleteAvailabilitySlot(slotId);
+        /*   setAvailabilities((prev) =>
           prev.filter(
             (slot) =>
               !(
@@ -298,19 +299,20 @@ function AdminManageCalendar() {
                 slot.end.getTime() === event.end.getTime()
               )
           )
-        );
-        /*  const selectedSlot = event.start.toISOString();
-        const testData = "2025-01-22T16:00:00";
+        ); */
+        /*   const selectedSlot = new Date(
+          event.start.getTime()  - 60 * 60 * 1000 
+        ).toISOString(); */
+        const testData = "2025-01-20T07:00:00";
 
-        console.log("DELETE SELECTED SLOT", testData);
-        const confirmDelete = window.confirm(
+        /* const confirmDelete = window.confirm(
           "Do you want to delete this availability??"
         );
         if (!confirmDelete) {
           return;
         }
-
-        deleteAvailabilitySlot(testData); 
+ */
+        deleteAvailabilitySlot(testData);
         setAvailabilities((prev) =>
           prev.filter(
             (slot) =>
@@ -319,7 +321,7 @@ function AdminManageCalendar() {
                 slot.end.getTime() === event.end.getTime()
               )
           )
-        );*/
+        );
 
         // setDeleteAvailability(selectedSlot);
       }
@@ -364,31 +366,28 @@ function AdminManageCalendar() {
     };
 
     // delete timeslot logic
-    const deleteAvailabilitySlot = async (slotId) => {
-      /*      const data = {
+    const deleteAvailabilitySlot = async (testData) => {
+      const data = {
         caregiverId: id,
         selectedSlot: testData,
-      };*/
-      console.log("DELETION DATA:", slotId);
-
+      };
+      console.log("[TEST DATA:]", data);
       try {
         await axios.delete(
-          `http://localhost:8080/availability/deleteavailability/${slotId}`,
-          /*  `http://localhost:8080/availability/removetimeslot`,
-          data, */
+          //`http://localhost:8080/availability/deleteavailability/${slotId}`,
+          `http://localhost:8080/availability/removetimeslot`,
+          data,
           {
             withCredentials: true,
           }
         );
 
         alert("Changes are now saved");
+
         // untoggles editmode when deleted
         setEditMode(false);
       } catch (error) {
-        console.error(
-          "Error deleting slot:",
-          error.response?.data || error.message
-        );
+        console.error("Error deleting slot:", error);
       }
     };
 
