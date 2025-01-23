@@ -213,7 +213,7 @@ function AdminManageCalendar() {
                     start,
                     end,
                     title: "Available",
-                    availabilityId: availability.id,
+                    caregiverId: id,
                     type: "availability",
                   };
                 })
@@ -338,7 +338,7 @@ function AdminManageCalendar() {
         // levels out the time difference between data sent into mongoDB(-2hrs) and
         // data beeing fetched wich is only +1hr so right time slot gets filled when
         // fetched from backend.
-        const timeCorrection = new Date(start.getTime()); //+ 60 * 60 * 1000
+        const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
         console.log("timeCorrection:", timeCorrection);
 
         //add selected slots to the state that gets sent to backend
@@ -359,7 +359,7 @@ function AdminManageCalendar() {
 
       if (editMode && event.type === "availability") {
         const availabilityInfo = {
-          availabilityId: event.availabilityId,
+          caregiverId: id,
           selectedSlot: new Date(event.start.getTime()),
         };
         console.log("DEBUG - Original availability info:", availabilityInfo);
@@ -400,15 +400,16 @@ function AdminManageCalendar() {
         const formattedDate = adjustedDate.toISOString().split(".")[0];
 
         const availabilityToSend = {
-          availabilityId: selectedAvailability.availabilityId,
+          caregiverId: id,
           selectedSlot: formattedDate,
         };
         console.log("DEBUG - Sending availability:", availabilityToSend);
 
         await axios.delete(
           `http://localhost:8080/availability/removetimeslot`,
-          availabilityToSend,
           {
+            data: availabilityToSend,
+
             withCredentials: true,
           }
         );
@@ -417,7 +418,10 @@ function AdminManageCalendar() {
 
         window.location.reload();
       } catch (error) {
-        console.error("Error creating booking:", error.response?.data || error);
+        console.error(
+          "Error removing availability!:",
+          error.response?.data || error
+        );
         alert("Error removing availability. Please try again.");
       }
     };
@@ -606,33 +610,3 @@ function AdminManageCalendar() {
   // main scope ends
 }
 export default AdminManageCalendar;
-
-// if the event is of type availability then it gets removed from selected slots
-// and availabilities so it dissapears from the calendar.
-//alert("This slot is already available!");
-//const slotId = event.availabilityId;
-//console.log("ID:", slotId);
-
-// deleteAvailabilitySlot(slotId);
-/*   setAvailabilities((prev) =>
-          prev.filter(
-            (slot) =>
-              !(
-                slot.start.getTime() === event.start.getTime() &&
-                slot.end.getTime() === event.end.getTime()
-              )
-          )
-        ); */
-/*   const selectedSlot = new Date(
-          event.start.getTime()  - 60 * 60 * 1000 
-        ).toISOString(); */
-//const testData = "2025-01-20T07:00:00";
-
-/* const confirmDelete = window.confirm(
-          "Do you want to delete this availability??"
-        );
-        if (!confirmDelete) {
-          return;
-        }
- */
-//deleteAvailabilitySlot(testData);
