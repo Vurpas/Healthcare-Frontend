@@ -60,12 +60,12 @@ const LogoContainer = styled.img`
   }
 `;
 
-const MyPageContainer = styled.p`
+const MyPageContainer = styled.div`
   display: flex;
   cursor: pointer;
 `;
 
-const LogOutContainer = styled.p`
+const LogOutContainer = styled.div`
   display: flex;
   cursor: pointer;
   margin-right: 60px;
@@ -97,9 +97,9 @@ const Navbar = () => {
   } = useAuth();
 
   const navigate = useNavigate();
-  /*  const routeChange = (path) => {
+  const routeChange = (path) => {
     navigate(path);
-  }; */
+  };
 
   return (
     <>
@@ -107,7 +107,7 @@ const Navbar = () => {
         <ListContainer>
           <LogoContainer
             src={Logo}
-            /* onClick={() => routeChange(`/${roles[0].toLowerCase()}/dashboard`)} */
+            onClick={() => routeChange(`/${roles[0].toLowerCase()}/dashboard`)}
           />
           <MyPageContainer>
             {user ? (
