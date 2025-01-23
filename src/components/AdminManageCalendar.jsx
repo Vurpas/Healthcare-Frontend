@@ -285,8 +285,20 @@ function AdminManageCalendar() {
       if (editMode && event.type === "availability") {
         // if the event is of type availability then it gets removed from selected slots
         // and availabilities so it dissapears from the calendar.
-        alert("This slot is already available!");
+        //alert("This slot is already available!");
+        const slotId = event.availabilityId;
+        console.log("ID:", slotId);
 
+        deleteAvailabilitySlot(slotId);
+        setAvailabilities((prev) =>
+          prev.filter(
+            (slot) =>
+              !(
+                slot.start.getTime() === event.start.getTime() &&
+                slot.end.getTime() === event.end.getTime()
+              )
+          )
+        );
         /*  const selectedSlot = event.start.toISOString();
         const testData = "2025-01-22T16:00:00";
 
@@ -352,17 +364,18 @@ function AdminManageCalendar() {
     };
 
     // delete timeslot logic
-    const deleteAvailabilitySlot = async (testData) => {
-      const data = {
+    const deleteAvailabilitySlot = async (slotId) => {
+      /*      const data = {
         caregiverId: id,
         selectedSlot: testData,
-      };
-      console.log("DELETION DATA:", data);
+      };*/
+      console.log("DELETION DATA:", slotId);
 
       try {
         await axios.delete(
-          `http://localhost:8080/availability/removetimeslot`,
-          data,
+          `http://localhost:8080/availability/deleteavailability/${slotId}`,
+          /*  `http://localhost:8080/availability/removetimeslot`,
+          data, */
           {
             withCredentials: true,
           }
