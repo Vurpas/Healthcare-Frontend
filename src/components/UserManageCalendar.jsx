@@ -175,7 +175,7 @@ function UserManageCalendar() {
       patientId: id,
       selectedSlot: "2025-05-20T16:00:00"
        }; */
-
+    /* 
     const handleSelectedSlot = (event) => {
       if (event.type === "availability") {
         const appointmentInfo = {
@@ -203,7 +203,7 @@ function UserManageCalendar() {
       } catch (error) {
         console.error("Error creating post:", error);
       }
-    };
+    }; */
 
     /** logic for selecting availability and convert it to a new appointment
      * can be written here.
@@ -349,12 +349,12 @@ function UserManageCalendar() {
                 </div>
               ),
             }}
-            onSelectEvent={handleSelectedSlot}
+            //onSelectEvent={handleSelectedSlot}
           />
         </CalendarWrapper>
-        <StyledButton onClick={createNewAppointment}>
+        {/*    <StyledButton onClick={createNewAppointment}>
           Book selected appointment
-        </StyledButton>
+        </StyledButton> */}
         {/*    <ButtonContainer>
           {editMode && (
             <StyledButton onClick={handleSaveAvailabilitySlots}>

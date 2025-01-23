@@ -303,7 +303,7 @@ function AdminManageCalendar() {
         /*   const selectedSlot = new Date(
           event.start.getTime()  - 60 * 60 * 1000 
         ).toISOString(); */
-        const testData = "2025-01-20T07:00:00";
+        //const testData = "2025-01-20T07:00:00";
 
         /* const confirmDelete = window.confirm(
           "Do you want to delete this availability??"
@@ -312,7 +312,7 @@ function AdminManageCalendar() {
           return;
         }
  */
-        deleteAvailabilitySlot(testData);
+        //deleteAvailabilitySlot(testData);
         setAvailabilities((prev) =>
           prev.filter(
             (slot) =>
@@ -367,7 +367,7 @@ function AdminManageCalendar() {
     };
 
     // DELETE AVALABLE TIMESLOT
-    const deleteAvailabilitySlot = async (testData) => {
+    /*  const deleteAvailabilitySlot = async (testData) => {
       const data = {
         caregiverId: id,
         selectedSlot: testData,
@@ -390,7 +390,7 @@ function AdminManageCalendar() {
       } catch (error) {
         console.error("Error deleting slot:", error);
       }
-    };
+    }; */
 
     // eventsToShow provides the ability to toggle between rendered events
     const eventsToShow = (() => {

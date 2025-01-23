@@ -46,7 +46,7 @@ function RequireAuth({ children, allowedRoles }) {
   }
 
   if (!authState.isAuthenticated) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (
@@ -58,5 +58,4 @@ function RequireAuth({ children, allowedRoles }) {
 
   return children;
 }
-
 export default RequireAuth;
