@@ -23,6 +23,7 @@ const StyledButton = styled.button`
   border-radius: 10px;
   font-size: 18px;
   font-weight: 600;
+  border: none;
   margin-bottom: 20px;
   color: #fff;
   transition: background-color 0.3s ease, transform 0.2s ease,
@@ -145,7 +146,7 @@ function AdminDashboard() {
       <LogoContainer src={Logo} />
       <Title>Admin Dashboard</Title>
       <Text>Welcome, {user}</Text>
-      <StyledButton onClick={goToCalendar}>Go To Calendar</StyledButton>
+      <StyledButton onClick={goToCalendar}>Appointment Calendar</StyledButton>
       <BookingText>Today's appointments</BookingText>
 
       {/* ternary to check if appointments array is empty, in that case display "No appointments yet" to user */}
@@ -174,9 +175,6 @@ function AdminDashboard() {
         </div>
       ) : (
         <>
-          <LoadContainer>
-            <Loader></Loader>
-          </LoadContainer>
           <Text>No appointments yet</Text>
         </>
       )}

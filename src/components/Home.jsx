@@ -38,6 +38,7 @@ const RegisterButton = styled.div`
   background-color: #057d7a;
   border-radius: 10px;
   font-size: 18px;
+  textDecoration: "none", color: "white"
   font-weight: 600;
   color: #fff;
   margin-top: 3rem;
@@ -60,16 +61,13 @@ const Home = () => (
     <HomeContainer>
       <LogoContainer src={Logo} />
       <Title>Health Care Appointment App</Title>
-      <LoginButton>
-        <Link className="link" to="/login">
-          Login
-        </Link>
-      </LoginButton>
-      <RegisterButton>
-        <Link className="link" to="/register">
-          Register
-        </Link>
-      </RegisterButton>
+
+      <Link style={{ textDecoration: "none", color: "black" }} to="/login">
+        <LoginButton>Login</LoginButton>
+      </Link>
+      <Link style={{ textDecoration: "none", color: "black" }} to="/register">
+        <LoginButton>Register</LoginButton>
+      </Link>
     </HomeContainer>
   </>
 );
