@@ -46,14 +46,14 @@ function RequireAuth({ children, allowedRoles }) {
   }
 
   if (!authState.isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   if (
     allowedRoles &&
     !allowedRoles.some((role) => authState.roles.includes(role))
   ) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/unorthorized" replace />;
   }
 
   return children;

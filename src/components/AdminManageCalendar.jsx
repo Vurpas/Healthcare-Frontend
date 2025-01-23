@@ -264,6 +264,7 @@ function AdminManageCalendar() {
         // data beeing fetched wich is only +1hr so right time slot gets filled when
         // fetched from backend.
         const timeCorrection = new Date(start.getTime()); //+ 60 * 60 * 1000
+        console.log("timeCorrection:", timeCorrection);
 
         //add selected slots to the state that gets sent to backend
         setSelectedSlots((prev) => [...prev, timeCorrection]);
@@ -274,13 +275,12 @@ function AdminManageCalendar() {
     };
 
     // log appointments state whenever it updates
-    /*    useEffect(() => {
-      
-     console.log("Appointments state updated:", appointments);
+    useEffect(() => {
+      //console.log("Appointments state updated:", appointments);
       console.log("[selected slots]:", selectedSlots);
-    }, [selectedSlots]); */
+    }, [selectedSlots]);
 
-    const handleSelectdSlots = (event) => {
+    const handleSelectedSlots = (event) => {
       // only allows changes inside editMode
 
       if (editMode && event.type === "availability") {
@@ -351,6 +351,7 @@ function AdminManageCalendar() {
         caregiverId: id,
         availableSlots: selectedSlots,
       };
+      console.log("DATA SENT TO BACKEND:", data);
 
       try {
         await axios.post(`http://localhost:8080/availability`, data, {
@@ -365,7 +366,7 @@ function AdminManageCalendar() {
       }
     };
 
-    // delete timeslot logic
+    // DELETE AVALABLE TIMESLOT
     const deleteAvailabilitySlot = async (testData) => {
       const data = {
         caregiverId: id,
@@ -542,7 +543,7 @@ function AdminManageCalendar() {
             selectable={editMode}
             onSelectSlot={addNewAvailability}
             eventPropGetter={eventStyleGetter}
-            onSelectEvent={handleSelectdSlots}
+            onSelectEvent={handleSelectedSlots}
           />
         </CalendarWrapper>
         <ButtonContainer>

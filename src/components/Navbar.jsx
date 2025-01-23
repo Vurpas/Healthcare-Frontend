@@ -18,31 +18,25 @@ const Navbar = () => {
   };
 
   return (
-    <RequireAuth roles={["USER", "ADMIN"]}>
-      <>
-        <NavContainer>
-          <ListContainer>
-            <LogoContainer
-              src={Logo}
-              onClick={() =>
-                routeChange(`/${roles[0].toLowerCase()}/dashboard`)
-              }
-            />
-            <MyPageContainer>
-              <MyAppointmentsButton
-                onClick={() => routeChange("/appointments")}
-              >
-                My Appointments
-              </MyAppointmentsButton>
-            </MyPageContainer>
-            <LogOutContainer>
-              <Link to="/logout"></Link>
-              <Logout />
-            </LogOutContainer>
-          </ListContainer>
-        </NavContainer>
-      </>
-    </RequireAuth>
+    <>
+      <NavContainer>
+        <ListContainer>
+          <LogoContainer
+            src={Logo}
+            onClick={() => routeChange(`/${roles[0].toLowerCase()}/dashboard`)}
+          />
+          <MyPageContainer>
+            <MyAppointmentsButton onClick={() => routeChange("/appointments")}>
+              My Appointments
+            </MyAppointmentsButton>
+          </MyPageContainer>
+          <LogOutContainer>
+            <Link to="/logout"></Link>
+            <Logout />
+          </LogOutContainer>
+        </ListContainer>
+      </NavContainer>
+    </>
   );
 };
 export default Navbar;
