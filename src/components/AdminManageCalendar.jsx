@@ -364,15 +364,6 @@ function AdminManageCalendar() {
         };
         console.log("DEBUG - Original availability info:", availabilityInfo);
 
-        /*   setAvailabilities((prev) =>
-          prev.filter(
-            (slot) =>
-              !(
-                slot.start.getTime() === event.start.getTime() &&
-                slot.end.getTime() === event.end.getTime()
-              )
-          )
-        ); */
         setSelectedAvailability(availabilityInfo);
         setShowConfirmation(true);
         console.log("AVAILABILITY INFO:", availabilityInfo);
@@ -442,7 +433,7 @@ function AdminManageCalendar() {
         caregiverId: id,
         availableSlots: selectedSlots,
       };
-      console.log("DATA SENT TO BACKEND:", data);
+      //console.log("DATA SENT TO BACKEND:", data);
 
       try {
         await axios.post(`http://localhost:8080/availability`, data, {
