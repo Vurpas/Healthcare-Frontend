@@ -220,7 +220,7 @@ function UserManageCalendar() {
                   };
                 })
                 .filter((slot) => {
-                  // Lägg till en liten marginal (t.ex. 30 minuter) för att inte visa tider som nästan passerat
+                  // adding a margin for times that has almost passed
                   const marginInMinutes = 30;
                   const marginInMs = marginInMinutes * 60 * 1000;
                   const timeWithMargin = new Date(now.getTime() + marginInMs);
