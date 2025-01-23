@@ -119,8 +119,6 @@ function AdminManageCalendar() {
     const [upcomingAppointments, setUpcomingAppointments] = useState([]);
     const [oldAppointments, setOldAppointments] = useState([]);
 
-    const [deleteAvailability, setDeleteAvailability] = useState("");
-
     // retrieving all availabilities created by logged in user
     useEffect(() => {
       // api call
@@ -264,7 +262,7 @@ function AdminManageCalendar() {
         // levels out the time difference between data sent into mongoDB(-2hrs) and
         // data beeing fetched wich is only +1hr so right time slot gets filled when
         // fetched from backend.
-        const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+        const timeCorrection = new Date(start.getTime()); //+ 60 * 60 * 1000
 
         //add selected slots to the state that gets sent to backend
         setSelectedSlots((prev) => [...prev, timeCorrection]);
@@ -276,8 +274,9 @@ function AdminManageCalendar() {
 
     // log appointments state whenever it updates
     useEffect(() => {
-      console.log("Appointments state updated:", appointments);
-      console.log("[selected slots]:", selectedSlots);
+      console.log("Availabilities:", availabilities);
+      /*  console.log("Appointments state updated:", appointments);
+      console.log("[selected slots]:", selectedSlots); */
     }, [selectedSlots]);
 
     const handleSelectdSlots = (event) => {
@@ -286,8 +285,12 @@ function AdminManageCalendar() {
       if (editMode && event.type === "availability") {
         // if the event is of type availability then it gets removed from selected slots
         // and availabilities so it dissapears from the calendar.
-        const selectedSlot = new Date(event.start.getTime() + 60 * 60 * 1000);
-        console.log("DELETE SELECTED SLOT", selectedSlot);
+        alert("This slot is already available!");
+
+        /*  const selectedSlot = event.start.toISOString();
+        const testData = "2025-01-22T16:00:00";
+
+        console.log("DELETE SELECTED SLOT", testData);
         const confirmDelete = window.confirm(
           "Do you want to delete this availability??"
         );
@@ -295,7 +298,7 @@ function AdminManageCalendar() {
           return;
         }
 
-        deleteAvailabilitySlot();
+        deleteAvailabilitySlot(testData); 
         setAvailabilities((prev) =>
           prev.filter(
             (slot) =>
@@ -304,9 +307,9 @@ function AdminManageCalendar() {
                 slot.end.getTime() === event.end.getTime()
               )
           )
-        );
+        );*/
 
-        setDeleteAvailability(selectedSlot);
+        // setDeleteAvailability(selectedSlot);
       }
       if (editMode && event.type === "appointments") {
         // insert functionallity to set appointments status to canceled
@@ -349,10 +352,10 @@ function AdminManageCalendar() {
     };
 
     // delete timeslot logic
-    const deleteAvailabilitySlot = async () => {
+    const deleteAvailabilitySlot = async (testData) => {
       const data = {
         caregiverId: id,
-        selectedSlot: deleteAvailability,
+        selectedSlot: testData,
       };
       console.log("DELETION DATA:", data);
 
@@ -364,11 +367,15 @@ function AdminManageCalendar() {
             withCredentials: true,
           }
         );
+
         alert("Changes are now saved");
         // untoggles editmode when deleted
         setEditMode(false);
       } catch (error) {
-        console.error("Error deleting slot:", error);
+        console.error(
+          "Error deleting slot:",
+          error.response?.data || error.message
+        );
       }
     };
 

@@ -41,7 +41,7 @@ function App() {
             <Route
               path="/appointments"
               element={
-                <RequireAuth allowedRoles={["USER"]}>
+                <RequireAuth allowedRoles={["USER", "ADMIN"]}>
                   <MyAppointments />
                 </RequireAuth>
               }
