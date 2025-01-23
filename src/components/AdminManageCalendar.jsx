@@ -39,7 +39,7 @@ const ButtonContainer = styled.div`
 const StyledButton = styled.button`
   cursor: pointer;
   padding: 10px 30px;
-  background-color: #057d7a;
+  background-color: rgb(119, 175, 236);
   border-radius: 10px;
   font-size: 18px;
   font-weight: 600;
@@ -429,6 +429,7 @@ function AdminManageCalendar() {
     // calback function to toggle the state of editMode when called ()
     const toggleEditMode = () => {
       setEditMode((prevMode) => !prevMode);
+      setSelectedSlots([]);
     };
 
     //save selected slots to backend logic
@@ -456,6 +457,13 @@ function AdminManageCalendar() {
       }
     };
 
+    //clears the selected slot state to avoid unwanted slots in the state
+    const clearChanges = () => {
+      alert("Changes have been cleared");
+      setSelectedSlots([]);
+      toggleEditMode();
+    };
+
     // eventsToShow provides the ability to toggle between rendered events
     const eventsToShow = (() => {
       if (displayMode === "combined")
@@ -468,12 +476,18 @@ function AdminManageCalendar() {
         <CalendarWrapper>
           <div style={{ marginBottom: "1rem" }}>
             {displayMode === "combined" && (
-              <button onClick={() => setDisplayMode("past")}>
+              <button
+                className="toggleHistory"
+                onClick={() => setDisplayMode("past")}
+              >
                 Appointment History
               </button>
             )}
             {displayMode === "past" && (
-              <button onClick={() => setDisplayMode("combined")}>
+              <button
+                className="toggleHistory"
+                onClick={() => setDisplayMode("combined")}
+              >
                 Go Back!
               </button>
             )}
@@ -483,7 +497,7 @@ function AdminManageCalendar() {
             events={eventsToShow}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: 550 }}
+            style={{ height: 600 }}
             //set the default view to week
             defaultView="week"
             /* disables the agenda option by exluding it, since we dont need it,
@@ -548,8 +562,8 @@ function AdminManageCalendar() {
                     : "#408180",
                   color: isAvailability ? "#FFFFFF" : "#FFFFFF",
                   height: "100%",
-                  whiteSpace: "normal",
-                  wordWrap: "break-word",
+                  //whiteSpace: "normal",
+                  //wordWrap: "break-word",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -590,6 +604,9 @@ function AdminManageCalendar() {
           <StyledButton onClick={toggleEditMode}>
             {editMode ? "Go Back" : "Edit Calendar"}
           </StyledButton>
+          {editMode && (
+            <StyledButton onClick={clearChanges}>Clear Changes</StyledButton>
+          )}
         </ButtonContainer>
       </div>
     );
