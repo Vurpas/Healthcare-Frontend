@@ -1,5 +1,3 @@
-//avkommentera denna import när det är dags för att göra en redirect efter availabilities är satt!
-//import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
@@ -73,6 +71,40 @@ const Title = styled.h2`
 const Text = styled.p`
   font-size: 18px;
 `;
+const DialogOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const DialogContent = styled.div`
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const DialogTitle = styled.h3`
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 20px;
+`;
+
+const DialogButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+`;
 
 const locales = {
   "sv-SE": sv,
@@ -88,6 +120,35 @@ const localizer = dateFnsLocalizer({
 
 // get todays date dynamically to use in the calendar
 const today = new Date();
+
+// confirmation modal for when creating an appointment
+const ConfirmationDialog = ({
+  isOpen,
+  onClose,
+  appointmentInfo,
+  onConfirm,
+}) => {
+  if (!isOpen) return null;
+
+  const formatDate = (date) => {
+    return format(new Date(date), "yyyy-MM-dd HH:mm");
+  };
+
+  return (
+    <DialogOverlay>
+      <DialogContent>
+        <DialogTitle>Availability Info</DialogTitle>
+        <Text>Date: {formatDate(appointmentInfo.selectedSlot)}</Text>
+        <DialogButtonContainer>
+          <StyledButton onClick={onClose} style={{ backgroundColor: "#666" }}>
+            Cancel
+          </StyledButton>
+          <StyledButton onClick={onConfirm}>Remove availability?</StyledButton>
+        </DialogButtonContainer>
+      </DialogContent>
+    </DialogOverlay>
+  );
+};
 
 function AdminManageCalendar() {
   // main scope
@@ -119,6 +180,10 @@ function AdminManageCalendar() {
     const [upcomingAppointments, setUpcomingAppointments] = useState([]);
     const [oldAppointments, setOldAppointments] = useState([]);
 
+    // state used in confirmationDialogue
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [selectedAvailability, setSelectedAvailability] = useState(null);
+
     // retrieving all availabilities created by logged in user
     useEffect(() => {
       // api call
@@ -133,25 +198,35 @@ function AdminManageCalendar() {
             }
           );
           const data = response.data;
+          const now = new Date();
           const parseAvailabilityData = data
 
             .map((availability) => {
-              return availability.availableSlots.map((slot) => {
-                const start = new Date(slot);
-                // controls the end time of each slot
-                const end = new Date(start.getTime() + 60 * 60 * 1000);
-                const type = "availability";
+              return availability.availableSlots
+                .map((slot) => {
+                  const start = new Date(slot);
+                  // controls the end time of each slot
+                  const end = new Date(start.getTime() + 60 * 60 * 1000);
+                  const type = "availability";
 
-                return {
-                  start,
-                  end,
-                  title: "Available",
-                  availabilityId: availability.id,
-                  type: "availability",
-                };
-              });
+                  return {
+                    start,
+                    end,
+                    title: "Available",
+                    availabilityId: availability.id,
+                    type: "availability",
+                  };
+                })
+                .filter((slot) => {
+                  const marginInMinutes = 30;
+                  const marginInMs = marginInMinutes * 60 * 1000;
+                  const timeWithMargin = new Date(now.getTime() + marginInMs);
+
+                  return slot.start > timeWithMargin;
+                });
             })
-            .flat();
+            .flat()
+            .sort((a, b) => a.start.getTime() - b.start.getTime());
 
           setAvailabilities(parseAvailabilityData);
         } catch (error) {
@@ -276,21 +351,19 @@ function AdminManageCalendar() {
 
     // log appointments state whenever it updates
     useEffect(() => {
-      //console.log("Appointments state updated:", appointments);
       console.log("[selected slots]:", selectedSlots);
     }, [selectedSlots]);
 
-    const handleSelectedSlots = (event) => {
+    const handleSelectedEvent = async (event) => {
       // only allows changes inside editMode
 
       if (editMode && event.type === "availability") {
-        // if the event is of type availability then it gets removed from selected slots
-        // and availabilities so it dissapears from the calendar.
-        //alert("This slot is already available!");
-        //const slotId = event.availabilityId;
-        //console.log("ID:", slotId);
+        const availabilityInfo = {
+          availabilityId: event.availabilityId,
+          selectedSlot: new Date(event.start.getTime()),
+        };
+        console.log("DEBUG - Original availability info:", availabilityInfo);
 
-        // deleteAvailabilitySlot(slotId);
         /*   setAvailabilities((prev) =>
           prev.filter(
             (slot) =>
@@ -300,39 +373,52 @@ function AdminManageCalendar() {
               )
           )
         ); */
-        /*   const selectedSlot = new Date(
-          event.start.getTime()  - 60 * 60 * 1000 
-        ).toISOString(); */
-        //const testData = "2025-01-20T07:00:00";
-
-        /* const confirmDelete = window.confirm(
-          "Do you want to delete this availability??"
-        );
-        if (!confirmDelete) {
-          return;
-        }
- */
-        //deleteAvailabilitySlot(testData);
-        setAvailabilities((prev) =>
-          prev.filter(
-            (slot) =>
-              !(
-                slot.start.getTime() === event.start.getTime() &&
-                slot.end.getTime() === event.end.getTime()
-              )
-          )
-        );
-
-        // setDeleteAvailability(selectedSlot);
+        setSelectedAvailability(availabilityInfo);
+        setShowConfirmation(true);
+        console.log("AVAILABILITY INFO:", availabilityInfo);
       }
       if (editMode && event.type === "appointments") {
         // insert functionallity to set appointments status to canceled
-
+        alert("You clicked an appointment!");
         console.log("Appointment event clicked:", event);
         // Add your logic for 'other' event types here
       }
       if (!editMode) {
-        alert("OOPS!! to edit go to Edit Calendar!");
+        alert("To edit go to Edit Calendar!");
+      }
+    };
+
+    const handleConfirmRemoveAvailability = async () => {
+      try {
+        // compensating the issue with time difference that was
+        // creating error when sending it to backend
+        const adjustedDate = new Date(
+          selectedAvailability.selectedSlot.getTime()
+        );
+        adjustedDate.setHours(adjustedDate.getHours() + 1);
+
+        const formattedDate = adjustedDate.toISOString().split(".")[0];
+
+        const availabilityToSend = {
+          availabilityId: selectedAvailability.availabilityId,
+          selectedSlot: formattedDate,
+        };
+        console.log("DEBUG - Sending availability:", availabilityToSend);
+
+        await axios.delete(
+          `http://localhost:8080/availability/removetimeslot`,
+          availabilityToSend,
+          {
+            withCredentials: true,
+          }
+        );
+        alert("Availability removed!");
+        setShowConfirmation(false);
+
+        window.location.reload();
+      } catch (error) {
+        console.error("Error creating booking:", error.response?.data || error);
+        alert("Error removing availability. Please try again.");
       }
     };
 
@@ -366,39 +452,12 @@ function AdminManageCalendar() {
       }
     };
 
-    // DELETE AVALABLE TIMESLOT
-    /*  const deleteAvailabilitySlot = async (testData) => {
-      const data = {
-        caregiverId: id,
-        selectedSlot: testData,
-      };
-      console.log("[TEST DATA:]", data);
-      try {
-        await axios.delete(
-          //`http://localhost:8080/availability/deleteavailability/${slotId}`,
-          `http://localhost:8080/availability/removetimeslot`,
-          data,
-          {
-            withCredentials: true,
-          }
-        );
-
-        alert("Changes are now saved");
-
-        // untoggles editmode when deleted
-        setEditMode(false);
-      } catch (error) {
-        console.error("Error deleting slot:", error);
-      }
-    }; */
-
     // eventsToShow provides the ability to toggle between rendered events
     const eventsToShow = (() => {
       if (displayMode === "combined")
         return [...upcomingAppointments, ...availabilities];
       if (displayMode === "past") return [...oldAppointments];
     })();
-
     //returning the calendar
     return (
       <div>
@@ -509,9 +568,15 @@ function AdminManageCalendar() {
             selectable={editMode}
             onSelectSlot={addNewAvailability}
             //eventPropGetter={eventStyleGetter}
-            onSelectEvent={handleSelectedSlots}
+            onSelectEvent={handleSelectedEvent}
           />
         </CalendarWrapper>
+        <ConfirmationDialog
+          isOpen={showConfirmation}
+          onClose={() => setShowConfirmation(false)}
+          appointmentInfo={selectedAvailability}
+          onConfirm={handleConfirmRemoveAvailability}
+        />
         <ButtonContainer>
           {editMode && (
             <StyledButton onClick={saveNewAvailabilitySlots}>
@@ -540,5 +605,34 @@ function AdminManageCalendar() {
 
   // main scope ends
 }
-
 export default AdminManageCalendar;
+
+// if the event is of type availability then it gets removed from selected slots
+// and availabilities so it dissapears from the calendar.
+//alert("This slot is already available!");
+//const slotId = event.availabilityId;
+//console.log("ID:", slotId);
+
+// deleteAvailabilitySlot(slotId);
+/*   setAvailabilities((prev) =>
+          prev.filter(
+            (slot) =>
+              !(
+                slot.start.getTime() === event.start.getTime() &&
+                slot.end.getTime() === event.end.getTime()
+              )
+          )
+        ); */
+/*   const selectedSlot = new Date(
+          event.start.getTime()  - 60 * 60 * 1000 
+        ).toISOString(); */
+//const testData = "2025-01-20T07:00:00";
+
+/* const confirmDelete = window.confirm(
+          "Do you want to delete this availability??"
+        );
+        if (!confirmDelete) {
+          return;
+        }
+ */
+//deleteAvailabilitySlot(testData);

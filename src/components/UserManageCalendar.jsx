@@ -1,5 +1,3 @@
-//avkommentera denna import när det är dags för att göra en redirect efter availabilities är satt!
-//import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
@@ -178,6 +176,7 @@ function UserManageCalendar() {
     // calendar state false = view, true = edit mode
     const [editMode, setEditMode] = useState(true);
 
+    //state used in confirmationDialogue
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 
@@ -240,9 +239,9 @@ function UserManageCalendar() {
 
       getAllAvailabilities();
       // api call ends
-      // remount useEffect everytime editMode changes to make sure the calendar
+      // remount useEffect everytime availabilities changes to make sure the calendar
       // data is up to date.
-    }, []);
+    }, [availabilities]);
 
     // alert message for when a empty slot is clicked
     const handleSlotSelect = (slotInfo) => {
@@ -264,11 +263,11 @@ function UserManageCalendar() {
           symptoms: "123",
         };
 
-        //console.log("DEBUG - Original appointment info:", appointmentInfo);
+        console.log("DEBUG - Original appointment info:", appointmentInfo);
 
         setSelectedAppointment(appointmentInfo);
         setShowConfirmation(true);
-        //console.log("APPOINTMENT INFO:", appointmentInfo);
+        console.log("APPOINTMENT INFO:", appointmentInfo);
       } else {
         alert("This is not an available timeslot!");
       }
@@ -292,7 +291,7 @@ function UserManageCalendar() {
           symptoms: selectedAppointment.symptoms,
         };
 
-        //console.log("DEBUG - Sending appointment:", appointmentToSend);
+        console.log("DEBUG - Sending appointment:", appointmentToSend);
 
         await axios.post(`http://localhost:8080/bookings`, appointmentToSend, {
           withCredentials: true,
