@@ -278,8 +278,6 @@ function UserManageCalendar() {
             // this gives only one slot per hour
             timeslots={1}
             dayLayoutAlgorithm="no-overlap"
-            //selectable={editMode}
-            //onSelectSlot={handleSlotSelect}
             //eventPropGetter={eventStyleGetter}
             components={{
               event: ({ event }) => (
@@ -333,6 +331,32 @@ function UserManageCalendar() {
 }
 
 export default UserManageCalendar;
+
+/* components={{
+  event: ({ event }) => (
+    <div
+      style={{
+        padding: "8px",
+        borderRadius: "4px",
+        backgroundColor: "#76B3C8",
+        height: "100%",
+        whiteSpace: "normal",
+        wordWrap: "break-word",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+      }}
+    >
+      <strong style={{ margin: "0", lineHeight: "1.2" }}>
+        {event.title}
+      </strong>
+      <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
+        {event.doctor}
+      </p> 
+      </div>)
+      }} */
 
 /*  const handleSlotSelect = ({ start, end }) => {
       // create new slot

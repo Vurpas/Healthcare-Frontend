@@ -426,7 +426,7 @@ function AdminManageCalendar() {
       }
       // Default style for other events (non-selected)
       return {
-        style: {
+        /* style: {
           backgroundColor: "#76B3C8",
           color: "slate",
           borderRadius: "8px",
@@ -436,7 +436,7 @@ function AdminManageCalendar() {
           alignItems: "center",
           justifyContent: "center",
           border: `1px solid ${"#2F8EAF"}`,
-        },
+        }, */
       };
     };
 
@@ -515,7 +515,36 @@ function AdminManageCalendar() {
             // this gives only one slot per hour
             timeslots={1}
             components={{
-              event: ({ event }) => (
+              event: ({ event }) => {
+                const isAvailability = event.type === "availability";
+
+                const eventStyle = {
+                  padding: "8px",
+                  borderRadius: "6px",
+                  backgroundColor: isAvailability ? "#76B3C8" : "#057D7A",
+                  color: isAvailability ? "#FFFFFF" : "#FFFFFF",
+                  height: "100%",
+                  whiteSpace: "normal",
+                  wordWrap: "break-word",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                };
+
+                return (
+                  <div style={eventStyle}>
+                    <strong style={{ margin: "0", lineHeight: "1.2" }}>
+                      {event.title}
+                    </strong>
+                    <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
+                      {event.doctor}
+                    </p>
+                  </div>
+                );
+              },
+              /* event: ({ event }) => (
                 <div
                   style={{
                     padding: "8px",
@@ -535,10 +564,10 @@ function AdminManageCalendar() {
                     {event.title}
                   </strong>
                   <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
-                    {event.patient}
+                    {event.doctor}
                   </p>
                 </div>
-              ),
+              ), */
             }}
             selectable={editMode}
             onSelectSlot={addNewAvailability}
