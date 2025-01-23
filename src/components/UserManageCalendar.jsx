@@ -100,16 +100,14 @@ function UserManageCalendar() {
   const PatientCalendar = () => {
     // calendar start
 
-    // calendar state false = view, true = edit mode
-    const [editMode, setEditMode] = useState(false);
-
     //state of slots selected in edit mode
-    const [appointment, setAppointment] = useState({});
-
-    const [selectedSlots, setSelectedSlots] = useState({});
+    const [newAppointment, setNewAppointment] = useState({});
 
     // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
+
+    // calendar state false = view, true = edit mode
+    const [editMode, setEditMode] = useState(true);
 
     // update this to accomodate fetching all existing availabilities
     useEffect(() => {
@@ -161,110 +159,70 @@ function UserManageCalendar() {
       // api call ends
       // remount useEffect everytime editMode changes to make sure the calendar
       // data is up to date.
-    }, [editMode]);
+    }, []);
 
-    //console.log("[availabilities]:", availabilities);
+    console.log("[availabilities]:", availabilities);
 
-    /** Selected slot logic scan be written here
-     *
-     * old logic from set availability when user is ADMIN
-     * is commented out at the bottom of this file.
+    /** logic for selecting availability and convert it to a new appointment
+     * can be written here.
+     * save new availabilities logic is saved in the bottom of the file
      */
-    /* const testData =
-    { caregiverId: ,
+    /*  const handleEmptySlot = (event) => {
+      if (!event) {
+        alert("Slot is not available!");
+      }
+    }; */
+    const handleSlotSelect = (slotInfo) => {
+      if (!slotInfo) {
+        alert("Slot is not available!"); // This should never happen, as `slotInfo` is always passed.
+      } else {
+        console.log("Slot selected:", slotInfo);
+        alert("No Availabily found!");
+      }
+    };
+
+    const testData = {
+      caregiverId: "6792348485119738763c7ac5",
       patientId: id,
-      selectedSlot: "2025-05-20T16:00:00"
-       }; */
-    /* 
-    const handleSelectedSlot = (event) => {
+      selectedSlot: "2025-05-20T16:00:00",
+      symptoms: null,
+    };
+
+    const handleSelectedEvent = (event) => {
       if (event.type === "availability") {
         const appointmentInfo = {
           caregiverId: event.caregiverId,
           patientId: id,
           selectedSlot: new Date(event.start.getTime()),
-          symptoms: null,
         };
         console.log("APPOINTMENT INFO:", appointmentInfo);
-        setAppointment(appointmentInfo);
+        setNewAppointment(appointmentInfo);
       }
       if (event.type !== "availability") {
-        alert("You clicked an empty timeslot, try again");
+        alert("This is not an available timeslot!");
       }
     };
     const createNewAppointment = async () => {
-      const data = appointment;
-      console.log("[DATA FROM INSIDE CREATE:]", data);
+      //const data = appointmentInfo;
 
       try {
-        await axios.post(`http://localhost:8080/bookings`, data, {
+        await axios.post(`http://localhost:8080/bookings`, newAppointment, {
           withCredentials: true,
         });
         alert("Appointment created");
       } catch (error) {
         console.error("Error creating post:", error);
       }
-    }; */
-
-    /** logic for selecting availability and convert it to a new appointment
-     * can be written here.
-     * save new availabilities logic is saved in the bottom of the file
-     */
-
+    };
     // method to check what data each slot contains
 
     // custom styles for slots both in editMode and default
-
-    const eventStyleGetter = (event) => {
-      // Loop through selected slots and check if the event's start time is one of the selected slots
-      if (editMode) {
-        const matchingSlot = selectedSlots.find(
-          (slot) => slot.getTime() === event.start.getTime() + 60 * 60 * 1000 // Correct the event's time by subtracting 1 hour
-        );
-
-        if (matchingSlot) {
-          return {
-            // style for selected slots in editMode
-            style: {
-              backgroundColor: "#057D7A",
-              color: "white",
-              //borderRadius: "8px",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              border: `1px solid ${"#2F8EAF"}`,
-            },
-          };
-        }
-      }
-      // Default style for other events (non-selected)
-      return {
-        style: {
-          backgroundColor: "#76B3C8",
-          color: "slate",
-          //borderRadius: "8px",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          border: `1px solid ${"#2F8EAF"}`,
-        },
-      };
-    };
-
-    //console.log("[SELECTEDSLOTS]:", selectedSlots);
-
-    // calback function to toggle the state of editMode when called ()
-    /*  const handleToggleEditMode = () => {
-      setEditMode((prevMode) => !prevMode);
-    }; */
 
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
+          <button onClick={createNewAppointment}>Book Appointment</button>
           <Calendar
             localizer={localizer}
             events={availabilities}
@@ -320,9 +278,9 @@ function UserManageCalendar() {
             // this gives only one slot per hour
             timeslots={1}
             dayLayoutAlgorithm="no-overlap"
-            selectable={editMode}
+            //selectable={editMode}
             //onSelectSlot={handleSlotSelect}
-            eventPropGetter={eventStyleGetter}
+            //eventPropGetter={eventStyleGetter}
             components={{
               event: ({ event }) => (
                 <div
@@ -349,22 +307,11 @@ function UserManageCalendar() {
                 </div>
               ),
             }}
-            //onSelectEvent={handleSelectedSlot}
+            onSelectEvent={handleSelectedEvent}
+            onSelectSlot={handleSlotSelect}
+            selectable={editMode}
           />
         </CalendarWrapper>
-        {/*    <StyledButton onClick={createNewAppointment}>
-          Book selected appointment
-        </StyledButton> */}
-        {/*    <ButtonContainer>
-          {editMode && (
-            <StyledButton onClick={handleSaveAvailabilitySlots}>
-              Save Changes
-            </StyledButton>
-          )}
-          <StyledButton onClick={handleToggleEditMode}>
-            {editMode ? "Go Back" : "Edit Calendar"}
-          </StyledButton> 
-        </ButtonContainer> */}
       </div>
     );
     //calendar scope ends
