@@ -127,12 +127,6 @@ const AppointmentDetails = () => {
     }
   };
 
-  /*  <Text>Doctor: {appointmentData.caregiverId.username}</Text>
-      <Text>Patient: {appointmentData.patientId.username}</Text> 
-      
-      These lines causes the page to crash on refresh, can no longer fetch data if these are included...?
-    */
-
   return (
     <AppointmentDataContainer>
       <Text>Time: {appointmentData.dateTime}</Text>

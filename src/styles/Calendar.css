@@ -1,3 +1,47 @@
 .rbc-event-label {
   display: none !important;
 }
+
+.rbc-header {
+  background: #057d7a;
+  color: #fff;
+}
+
+.rbc-event {
+  background: none !important;
+  border: none !important;
+  display: flex;
+  margin-left: 5px;
+}
+
+.rbc-toolbar-label {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.rbc-btn-group {
+  background: #7fbebd !important;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+.sc-bWXEWK.kTgRhc {
+  background: #f2fbfd !important;
+}
+
+.rbc-day-slot.rbc-time-column.rbc-now.rbc-today {
+  background: #d4fce5 !important;
+}
+
+.toggleHistory {
+  background: #95b9b8;
+  margin-left: 60px;
+  margin-top: 20px;
+  border: 2px solid #6ba2a1;
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+}

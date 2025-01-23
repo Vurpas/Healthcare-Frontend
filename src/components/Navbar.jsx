@@ -5,46 +5,6 @@ import Logout from "./Logout";
 import Logo from "../assets/health_care_logo.svg";
 import styled from "styled-components";
 import "../styles/Button.css";
-import RequireAuth from "./RequireAuth";
-
-const Navbar = () => {
-  const {
-    authState: { roles, user },
-  } = useAuth();
-
-  const navigate = useNavigate();
-  const routeChange = (path) => {
-    navigate(path);
-  };
-
-  return (
-    <>
-      <NavContainer>
-        <ListContainer>
-          <LogoContainer
-            src={Logo}
-            onClick={() => routeChange(`/${roles[0].toLowerCase()}/dashboard`)}
-          />
-          <MyPageContainer>
-            {user ? (
-              <LogOutContainer>
-                <Link to="/logout"></Link>
-                <Logout />
-              </LogOutContainer>
-            ) : (
-              <LogOutContainer>
-                <Link to="/">
-                  <LoginButton>Home</LoginButton>
-                </Link>
-              </LogOutContainer>
-            )}
-          </MyPageContainer>
-        </ListContainer>
-      </NavContainer>
-    </>
-  );
-};
-export default Navbar;
 
 const LoginButton = styled.button`
   cursor: pointer;
@@ -100,12 +60,12 @@ const LogoContainer = styled.img`
   }
 `;
 
-const MyPageContainer = styled.p`
+const MyPageContainer = styled.div`
   display: flex;
   cursor: pointer;
 `;
 
-const LogOutContainer = styled.p`
+const LogOutContainer = styled.div`
   display: flex;
   cursor: pointer;
   margin-right: 60px;
@@ -130,3 +90,42 @@ const MyAppointmentsButton = styled.button`
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
+
+const Navbar = () => {
+  const {
+    authState: { roles, user },
+  } = useAuth();
+
+  const navigate = useNavigate();
+  const routeChange = (path) => {
+    navigate(path);
+  };
+
+  return (
+    <>
+      <NavContainer>
+        <ListContainer>
+          <LogoContainer
+            src={Logo}
+            onClick={() => routeChange(`/${roles[0].toLowerCase()}/dashboard`)}
+          />
+          <MyPageContainer>
+            {user ? (
+              <LogOutContainer>
+                <Link to="/logout"></Link>
+                <Logout />
+              </LogOutContainer>
+            ) : (
+              <LogOutContainer>
+                <Link to="/">
+                  <LoginButton>Home</LoginButton>
+                </Link>
+              </LogOutContainer>
+            )}
+          </MyPageContainer>
+        </ListContainer>
+      </NavContainer>
+    </>
+  );
+};
+export default Navbar;

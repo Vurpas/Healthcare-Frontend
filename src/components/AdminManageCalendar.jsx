@@ -1,5 +1,3 @@
-//avkommentera denna import när det är dags för att göra en redirect efter availabilities är satt!
-//import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
@@ -41,7 +39,7 @@ const ButtonContainer = styled.div`
 const StyledButton = styled.button`
   cursor: pointer;
   padding: 10px 30px;
-  background-color: #057d7a;
+  background-color: rgb(119, 175, 236);
   border-radius: 10px;
   font-size: 18px;
   font-weight: 600;
@@ -73,6 +71,40 @@ const Title = styled.h2`
 const Text = styled.p`
   font-size: 18px;
 `;
+const DialogOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const DialogContent = styled.div`
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const DialogTitle = styled.h3`
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 20px;
+`;
+
+const DialogButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+`;
 
 const locales = {
   "sv-SE": sv,
@@ -88,6 +120,35 @@ const localizer = dateFnsLocalizer({
 
 // get todays date dynamically to use in the calendar
 const today = new Date();
+
+// confirmation modal for when creating an appointment
+const ConfirmationDialog = ({
+  isOpen,
+  onClose,
+  appointmentInfo,
+  onConfirm,
+}) => {
+  if (!isOpen) return null;
+
+  const formatDate = (date) => {
+    return format(new Date(date), "yyyy-MM-dd HH:mm");
+  };
+
+  return (
+    <DialogOverlay>
+      <DialogContent>
+        <DialogTitle>Availability Info</DialogTitle>
+        <Text>Date: {formatDate(appointmentInfo.selectedSlot)}</Text>
+        <DialogButtonContainer>
+          <StyledButton onClick={onClose} style={{ backgroundColor: "#666" }}>
+            Cancel
+          </StyledButton>
+          <StyledButton onClick={onConfirm}>Remove availability?</StyledButton>
+        </DialogButtonContainer>
+      </DialogContent>
+    </DialogOverlay>
+  );
+};
 
 function AdminManageCalendar() {
   // main scope
@@ -113,7 +174,15 @@ function AdminManageCalendar() {
     const [appointments, setAppointments] = useState([]);
 
     // state to be able to choose to show availabilities and appointments or both
-    const [displayMode, setDisplayMode] = useState("both");
+    const [displayMode, setDisplayMode] = useState("combined");
+
+    // states to sort appointments by date
+    const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+    const [oldAppointments, setOldAppointments] = useState([]);
+
+    // state used in confirmationDialogue
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [selectedAvailability, setSelectedAvailability] = useState(null);
 
     // retrieving all availabilities created by logged in user
     useEffect(() => {
@@ -129,23 +198,36 @@ function AdminManageCalendar() {
             }
           );
           const data = response.data;
+          const now = new Date();
           const parseAvailabilityData = data
 
             .map((availability) => {
-              return availability.availableSlots.map((slot) => {
-                const start = new Date(slot);
-                // controls the end time of each slot
-                const end = new Date(start.getTime() + 60 * 60 * 1000);
+              return availability.availableSlots
+                .map((slot) => {
+                  const start = new Date(slot);
+                  // controls the end time of each slot
+                  const end = new Date(start.getTime() + 60 * 60 * 1000);
+                  const type = "availability";
 
-                return {
-                  start,
-                  end,
-                  title: "Available",
-                  availabilityId: availability.id,
-                };
-              });
+                  return {
+                    start,
+                    end,
+                    title: "Available",
+                    caregiverId: id,
+                    type: "availability",
+                  };
+                })
+                .filter((slot) => {
+                  const marginInMinutes = 30;
+                  const marginInMs = marginInMinutes * 60 * 1000;
+                  const timeWithMargin = new Date(now.getTime() + marginInMs);
+
+                  return slot.start > timeWithMargin;
+                });
             })
-            .flat();
+            .flat()
+            .sort((a, b) => a.start.getTime() - b.start.getTime());
+
           setAvailabilities(parseAvailabilityData);
         } catch (error) {
           console.error("Unavailable to fetch availabilities:", error);
@@ -155,10 +237,10 @@ function AdminManageCalendar() {
       getAllAvailabilities();
 
       // api call ends
+
       // remount useEffect everytime editMode changes to make sure the calendar
       // data is up to date.
     }, [editMode]);
-
     // Fetch appointments belonging to the logged in caregiver.
 
     useEffect(() => {
@@ -173,17 +255,23 @@ function AdminManageCalendar() {
             }
           );
           const data = response.data;
-          const parseAppointmentData = data.map((appointment) => {
+          const parseAppointmentData = data.map((appointments) => {
             const {
               caregiverId: { username: Caregiver, id: caregiverId },
               patientId: { firstName: Patient, id: patientId },
               dateTime,
               status,
               id: appointmentId,
-            } = appointment;
+            } = appointments;
 
             const start = new Date(dateTime);
             const end = new Date(start.getTime() + 60 * 60 * 1000);
+            //added to be able to separate events in calendar
+            const type = "appointments";
+
+            // lets us know if the appointment date alrady has passed
+            const today = new Date();
+            const isPresent = start >= today ? true : false;
 
             return {
               Caregiver,
@@ -195,6 +283,8 @@ function AdminManageCalendar() {
               appointmentId,
               caregiverId,
               patientId,
+              type,
+              isPresent,
             };
           });
 
@@ -208,91 +298,142 @@ function AdminManageCalendar() {
       // api call ends
     }, []);
 
-    // log appointments state whenever it updates
-    /* useEffect(() => {
-      console.log("Appointments state updated:", appointments);
-    }, [appointments]); */
-
-    // select slot logic
-
-    /**
-     * OBS! SELECTED SLOT NEEDS TO BE CLEARED IF USER TOGGLES OUT OF EDITMODE!! OBS
-     */
-    const handleSlotSelect = ({ start, end }) => {
-      // create new slot
-      const newSlot = {
-        start,
-        end,
-        title: `New Availability`,
-      };
-
-      //add selected slots to availabilities state to be visable in calendar
-      setAvailabilities((prev) => [...prev, newSlot]);
-
-      // levels out the time difference between data sent into mongoDB(-2hrs) and
-      // data beeing fetched wich is only +1hr so right time slot gets filled when
-      // fetched from backend.
-      const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
-
-      //add selected slots to the state that gets sent to backend
-      setSelectedSlots((prev) => [...prev, timeCorrection]);
-    };
-
-    // log appointments state whenever it updates
-    /*     useEffect(() => {
-      console.log("Appointments state updated:", appointments);
-    }, [appointments]); */
-
-    // custom styles for slots both in editMode and default
-    const eventStyleGetter = (event) => {
-      // Loop through selected slots and check if the event's start time is one of the selected slots
-      if (editMode) {
-        const matchingSlot = selectedSlots.find(
-          (slot) => slot.getTime() === event.start.getTime() + 60 * 60 * 1000 // Correct the event's time by subtracting 1 hour
+    // sort appointments based on date
+    useEffect(() => {
+      const sortAppointments = () => {
+        const present = appointments.filter(
+          (appointment) => appointment.isPresent
+        );
+        const absent = appointments.filter(
+          (appointment) => !appointment.isPresent
         );
 
-        if (matchingSlot) {
-          return {
-            // style for selected slots in editMode
-            style: {
-              backgroundColor: "#057D7A",
-              color: "white",
-              borderRadius: "8px",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              border: `1px solid ${"#2F8EAF"}`,
-            },
-          };
-        }
-      }
-      // Default style for other events (non-selected)
-      return {
-        style: {
-          backgroundColor: "#76B3C8",
-          color: "slate",
-          borderRadius: "8px",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          border: `1px solid ${"#2F8EAF"}`,
-        },
+        setUpcomingAppointments(present);
+        setOldAppointments(absent);
       };
+      sortAppointments();
+    }, [appointments]);
+
+    // select slot logic for adding new availabilities
+    const addNewAvailability = ({ start, end }) => {
+      if (editMode) {
+        const slotExists = availabilities.some(
+          (slot) =>
+            slot.start.getTime() === start.getTime() &&
+            slot.end.getTime() === end.getTime()
+        );
+
+        // create new slot
+
+        const newSlot = {
+          start,
+          end,
+          title: "New Availability",
+          type: "availability",
+        };
+
+        //add selected slots to availabilities state to be visable in calendar
+        setAvailabilities((prev) => [...prev, newSlot]);
+
+        // levels out the time difference between data sent into mongoDB(-2hrs) and
+        // data beeing fetched wich is only +1hr so right time slot gets filled when
+        // fetched from backend.
+        const timeCorrection = new Date(start.getTime() + 60 * 60 * 1000);
+        console.log("timeCorrection:", timeCorrection);
+
+        //add selected slots to the state that gets sent to backend
+        setSelectedSlots((prev) => [...prev, timeCorrection]);
+      }
+      if (!editMode) {
+        alert("To add availability go to Edit Calendar");
+      }
     };
 
-    console.log("[SELECTEDSLOTS]:", selectedSlots);
+    // log appointments state whenever it updates
+    useEffect(() => {
+      console.log("[selected slots]:", selectedSlots);
+    }, [selectedSlots]);
+
+    const handleSelectedEvent = async (event) => {
+      // only allows changes inside editMode
+
+      if (editMode && event.type === "availability") {
+        const availabilityInfo = {
+          caregiverId: id,
+          selectedSlot: new Date(event.start.getTime()),
+        };
+        console.log("DEBUG - Original availability info:", availabilityInfo);
+
+        /*   setAvailabilities((prev) =>
+          prev.filter(
+            (slot) =>
+              !(
+                slot.start.getTime() === event.start.getTime() &&
+                slot.end.getTime() === event.end.getTime()
+              )
+          )
+        ); */
+        setSelectedAvailability(availabilityInfo);
+        setShowConfirmation(true);
+        console.log("AVAILABILITY INFO:", availabilityInfo);
+      }
+      if (editMode && event.type === "appointments") {
+        // insert functionallity to set appointments status to canceled
+        alert("You clicked an appointment!");
+        console.log("Appointment event clicked:", event);
+        // Add your logic for 'other' event types here
+      }
+      if (!editMode) {
+        alert("To edit go to Edit Calendar!");
+      }
+    };
+
+    const handleConfirmRemoveAvailability = async () => {
+      try {
+        // compensating the issue with time difference that was
+        // creating error when sending it to backend
+        const adjustedDate = new Date(
+          selectedAvailability.selectedSlot.getTime()
+        );
+        adjustedDate.setHours(adjustedDate.getHours() + 1);
+
+        const formattedDate = adjustedDate.toISOString().split(".")[0];
+
+        const availabilityToSend = {
+          caregiverId: id,
+          selectedSlot: formattedDate,
+        };
+        console.log("DEBUG - Sending availability:", availabilityToSend);
+
+        await axios.delete(
+          `http://localhost:8080/availability/removetimeslot`,
+          {
+            data: availabilityToSend,
+
+            withCredentials: true,
+          }
+        );
+        alert("Availability removed!");
+        setShowConfirmation(false);
+
+        window.location.reload();
+      } catch (error) {
+        console.error(
+          "Error removing availability!:",
+          error.response?.data || error
+        );
+        alert("Error removing availability. Please try again.");
+      }
+    };
 
     // calback function to toggle the state of editMode when called ()
-    const handleToggleEditMode = () => {
+    const toggleEditMode = () => {
       setEditMode((prevMode) => !prevMode);
+      setSelectedSlots([]);
     };
 
     //save selected slots to backend logic
-    const handleSaveAvailabilitySlots = async () => {
+    const saveNewAvailabilitySlots = async () => {
       if (selectedSlots.length === 0) {
         alert("You have no slots selected!");
         return;
@@ -301,6 +442,7 @@ function AdminManageCalendar() {
         caregiverId: id,
         availableSlots: selectedSlots,
       };
+      console.log("DATA SENT TO BACKEND:", data);
 
       try {
         await axios.post(`http://localhost:8080/availability`, data, {
@@ -315,30 +457,47 @@ function AdminManageCalendar() {
       }
     };
 
+    //clears the selected slot state to avoid unwanted slots in the state
+    const clearChanges = () => {
+      alert("Changes have been cleared");
+      setSelectedSlots([]);
+      toggleEditMode();
+    };
+
     // eventsToShow provides the ability to toggle between rendered events
     const eventsToShow = (() => {
-      if (displayMode === "both") return [...appointments, ...availabilities];
+      if (displayMode === "combined")
+        return [...upcomingAppointments, ...availabilities];
+      if (displayMode === "past") return [...oldAppointments];
     })();
-
     //returning the calendar
     return (
       <div>
         <CalendarWrapper>
-          {/*    <div style={{ marginBottom: "1rem" }}>
-            <button onClick={() => setDisplayMode("showAppointments")}>
-              My Appointments
-            </button>
-            <button onClick={() => setDisplayMode("showAvailabilities")}>
-              My Availabilities
-            </button>
-            <button onClick={() => setDisplayMode("showBoth")}>Combine</button>
-          </div> */}
+          <div style={{ marginBottom: "1rem" }}>
+            {displayMode === "combined" && (
+              <button
+                className="toggleHistory"
+                onClick={() => setDisplayMode("past")}
+              >
+                Appointment History
+              </button>
+            )}
+            {displayMode === "past" && (
+              <button
+                className="toggleHistory"
+                onClick={() => setDisplayMode("combined")}
+              >
+                Go Back!
+              </button>
+            )}
+          </div>
           <Calendar
             localizer={localizer}
             events={eventsToShow}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: 550 }}
+            style={{ height: 600 }}
             //set the default view to week
             defaultView="week"
             /* disables the agenda option by exluding it, since we dont need it,
@@ -390,46 +549,64 @@ function AdminManageCalendar() {
             // this gives only one slot per hour
             timeslots={1}
             components={{
-              event: ({ event }) => (
-                <div
-                  style={{
-                    padding: "8px",
-                    borderRadius: "4px",
-                    backgroundColor: "#76B3C8",
-                    height: "100%",
-                    whiteSpace: "normal",
-                    wordWrap: "break-word",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                  }}
-                >
-                  <strong style={{ margin: "0", lineHeight: "1.2" }}>
-                    {event.title}
-                  </strong>
-                  <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
-                    {event.patient}
-                  </p>
-                </div>
-              ),
+              event: ({ event }) => {
+                const isAvailability = event.type === "availability";
+                const newAvailability = event.title === "New Availability";
+                const eventStyle = {
+                  padding: "8px",
+                  borderRadius: "6px",
+                  backgroundColor: newAvailability
+                    ? "#46a76a"
+                    : isAvailability
+                    ? "#76B3C8"
+                    : "#408180",
+                  color: isAvailability ? "#FFFFFF" : "#FFFFFF",
+                  height: "100%",
+                  //whiteSpace: "normal",
+                  //wordWrap: "break-word",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                };
+
+                return (
+                  <div style={eventStyle}>
+                    <strong style={{ margin: "0", lineHeight: "1.2" }}>
+                      {event.title}
+                    </strong>
+                    <p style={{ margin: "4px 0", lineHeight: "1.2" }}>
+                      {event.doctor}
+                    </p>
+                  </div>
+                );
+              },
             }}
             selectable={editMode}
-            onSelectSlot={handleSlotSelect}
-            eventPropGetter={eventStyleGetter}
-            //onSelectEvent={handleEventSelect}
+            onSelectSlot={addNewAvailability}
+            //eventPropGetter={eventStyleGetter}
+            onSelectEvent={handleSelectedEvent}
           />
         </CalendarWrapper>
+        <ConfirmationDialog
+          isOpen={showConfirmation}
+          onClose={() => setShowConfirmation(false)}
+          appointmentInfo={selectedAvailability}
+          onConfirm={handleConfirmRemoveAvailability}
+        />
         <ButtonContainer>
           {editMode && (
-            <StyledButton onClick={handleSaveAvailabilitySlots}>
+            <StyledButton onClick={saveNewAvailabilitySlots}>
               Save Changes
             </StyledButton>
           )}
-          <StyledButton onClick={handleToggleEditMode}>
+          <StyledButton onClick={toggleEditMode}>
             {editMode ? "Go Back" : "Edit Calendar"}
           </StyledButton>
+          {editMode && (
+            <StyledButton onClick={clearChanges}>Clear Changes</StyledButton>
+          )}
         </ButtonContainer>
       </div>
     );
@@ -439,8 +616,8 @@ function AdminManageCalendar() {
   return (
     <AvailabilityContainer>
       <LogoContainer src={Logo} />
-      <Title>{user} Schedule Dashboard</Title>
-      <Text>Availability and Appointments</Text>
+      <Title>{user} Appointments Dashboard</Title>
+      <Text>Add new Availabilities OR Cancel Appointments</Text>
       <CalendarContainer>
         <CaregiverCalendar />
       </CalendarContainer>
@@ -449,5 +626,4 @@ function AdminManageCalendar() {
 
   // main scope ends
 }
-
 export default AdminManageCalendar;
