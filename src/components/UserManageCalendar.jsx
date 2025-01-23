@@ -101,7 +101,12 @@ function UserManageCalendar() {
     // calendar start
 
     //state of slots selected in edit mode
-    const [newAppointment, setNewAppointment] = useState({});
+    const [newAppointment, setNewAppointment] = useState({
+      caregiverId: "",
+      patientId: "",
+      selectedSlot: "",
+      symptoms: "123",
+    });
 
     // existing availabilities
     const [availabilities, setAvailabilities] = useState([]);
@@ -181,37 +186,34 @@ function UserManageCalendar() {
       }
     };
 
-    const testData = {
+    /*     const testData = {
       caregiverId: "6792348485119738763c7ac5",
       patientId: id,
       selectedSlot: "2025-05-20T16:00:00",
       symptoms: null,
-    };
+    }; */
 
-    const handleSelectedEvent = (event) => {
+    const handleSelectedEvent = async (event) => {
       if (event.type === "availability") {
         const appointmentInfo = {
           caregiverId: event.caregiverId,
           patientId: id,
           selectedSlot: new Date(event.start.getTime()),
+          symptoms: "123",
         };
         console.log("APPOINTMENT INFO:", appointmentInfo);
-        setNewAppointment(appointmentInfo);
+
+        try {
+          await axios.post(`http://localhost:8080/bookings`, appointmentInfo, {
+            withCredentials: true,
+          });
+          alert("Appointment created");
+        } catch (error) {
+          console.error("Error creating post:", error);
+        }
       }
       if (event.type !== "availability") {
         alert("This is not an available timeslot!");
-      }
-    };
-    const createNewAppointment = async () => {
-      //const data = appointmentInfo;
-
-      try {
-        await axios.post(`http://localhost:8080/bookings`, newAppointment, {
-          withCredentials: true,
-        });
-        alert("Appointment created");
-      } catch (error) {
-        console.error("Error creating post:", error);
       }
     };
     // method to check what data each slot contains
@@ -222,7 +224,6 @@ function UserManageCalendar() {
     return (
       <div>
         <CalendarWrapper>
-          <button onClick={createNewAppointment}>Book Appointment</button>
           <Calendar
             localizer={localizer}
             events={availabilities}
